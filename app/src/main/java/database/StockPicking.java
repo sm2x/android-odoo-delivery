@@ -4,10 +4,14 @@ import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
+import java.util.HashMap;
+import java.util.List;
+
 
 public class StockPicking extends SQLiteOpenHelper{
 
-    private static final String DATABASE_NAME = "stock.db";
+    public static final String DATABASE_NAME = "stock.db";
+    public static final HashMap<String, List<String>> TABLE_FIELDS = new HashMap<>();
     private static final int DATABASE_VERSION = 1;
     public StockPicking(Context context){
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
@@ -51,6 +55,9 @@ public class StockPicking extends SQLiteOpenHelper{
                     "FOREIGN KEY (create_uid) REFERENCES res_users(id)," +
                     "FOREIGN KEY (location_dest_id) REFERENCES stock_location(id)" +
                     ")");
+            db.execSQL("CREATE TABLE res_company " +
+                    "(id INTEGER UNIQUE," +
+                    "name TEXT NOT NULL)");
             db.execSQL("CREATE TABLE res_users" +
                     "(id INTEGER UNIQUE," +
                     "company_id INTEGER," +
@@ -58,9 +65,6 @@ public class StockPicking extends SQLiteOpenHelper{
                     "FOREIGN KEY (company_id) REFERENCES res_company(id)," +
                     "FOREIGN KEY (partner_id) REFERENCES res_partner(id)" +
                     ")");
-            db.execSQL("CREATE TABLE res_company " +
-                    "(id INTEGER UNIQUE," +
-                    "name TEXT NOT NULL)");
             db.execSQL("CREATE TABLE res_partner " +
                     "(id INTEGER UNIQUE," +
                     "name TEXT," +

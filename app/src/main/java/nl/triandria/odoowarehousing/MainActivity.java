@@ -10,7 +10,11 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 
+import org.alexd.jsonrpc.JSONRPCException;
+import org.json.JSONException;
+
 import nl.triandria.utilities.SessionManager;
+import nl.triandria.utilities.Synchronization;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -37,16 +41,23 @@ public class MainActivity extends AppCompatActivity {
                 @Override
                 public void onClick(View view) {
                     SharedPreferences preferences = getActivity().getSharedPreferences(SessionManager.SHARED_PREFERENCES_FILENAME, MODE_PRIVATE);
+                    int uid = preferences.getInt("uid", 0);
                     String username = preferences.getString("username", "null");
                     String password = preferences.getString("password", "null");
                     String database = preferences.getString("database", "null");
                     String url = preferences.getString("url", "null");
                     boolean success = SessionManager.logIn(username, password, database, url, getActivity());
-                    if (success) {
+                    if (success && uid !=0) {
                         //TODO start sync
+                        try {
+                            Synchronization.synchronize(getActivity());
+                        } catch (JSONRPCException e) {
+                            // TODO
+                        } catch (JSONException e) {
+                            // TODO
+                        }
                     } else {
                         // TODO show failure toast with exact failure
-
                     }
 
                 }
