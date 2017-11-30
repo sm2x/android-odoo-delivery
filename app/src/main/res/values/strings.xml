@@ -11,4 +11,6 @@
     <string name="hint_username">Username</string>
     <string name="hint_password">Password</string>
     <string name="hint_port">Port</string>
+    <string name="button_deliver">Deliver</string>
+    <string name="button_pickup">Pickup</string>
 </resources>

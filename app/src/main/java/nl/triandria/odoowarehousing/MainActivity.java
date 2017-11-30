@@ -1,6 +1,7 @@
 package nl.triandria.odoowarehousing;
 
 import android.app.DialogFragment;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -22,6 +23,20 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        Button buttonDeliver = (Button)findViewById(R.id.button_deliver);
+        buttonDeliver.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startActivity(new Intent(v.getContext(), PickingActivity.class));
+            }
+        });
+        Button buttonPickup = (Button)findViewById(R.id.button_pickup);
+        buttonPickup.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startActivity(new Intent(v.getContext(), DeliveryActivity.class));
+            }
+        });
         boolean isLoggedIn = SessionManager.isLoggedIn(this);
         if (isLoggedIn) {
             //TODO start synch
