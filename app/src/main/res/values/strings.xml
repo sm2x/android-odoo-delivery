@@ -13,4 +13,5 @@
     <string name="hint_port">Port</string>
     <string name="button_deliver">Deliver</string>
     <string name="button_pickup">Pickup</string>
+    <string name="port_80">80</string>
 </resources>

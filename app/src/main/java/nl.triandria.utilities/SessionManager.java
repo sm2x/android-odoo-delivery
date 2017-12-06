@@ -9,7 +9,7 @@ import org.alexd.jsonrpc.JSONRPCHttpClient;
 public class SessionManager {
 
     public static final String SHARED_PREFERENCES_FILENAME = "odoo.sec";
-    public static boolean logIn(String username, String password, String database, String url, Context context) {
+    public static int logIn(String username, String password, String database, String url, Context context) {
         if (username.isEmpty() || password.isEmpty()){
             throw new InvalidCredentials();
         }
@@ -25,14 +25,14 @@ public class SessionManager {
                         .putString("database", database)
                         .putString("url", url)
                         .apply();
-                return true;
+                return (int)uid;
             } else {
                 // TODO login failed, inform user why
-                return false;
+                return 0;
             }
         } catch (JSONRPCException e) {
             // TODO login failed, inform user why
-            return false;
+            return 0;
         }
     }
 
