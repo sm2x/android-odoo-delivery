@@ -25,6 +25,7 @@
             android:layout_weight="4"/>
 
         <EditText
+            android:id="@+id/port"
             android:layout_width="0px"
             android:layout_height="wrap_content"
             android:hint="@string/hint_port"
@@ -34,14 +35,23 @@
     </LinearLayout>
 
     <EditText
+        android:id="@+id/username"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:hint="@string/hint_username" />
 
     <EditText
+        android:id="@+id/password"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:inputType="textPassword"
         android:hint="@string/hint_password" />
+
+    <Spinner
+        android:id="@+id/database"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+    </Spinner>
 
     <LinearLayout
         android:layout_width="match_parent"

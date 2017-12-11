@@ -1,11 +1,8 @@
 package nl.triandria.odoowarehousing;
 
-import android.app.ActionBar;
+import android.app.Activity;
 import android.app.DialogFragment;
-import android.app.Fragment;
-import android.app.FragmentTransaction;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
@@ -13,17 +10,18 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.WindowManager;
-import android.widget.Adapter;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.Spinner;
+import android.widget.TextView;
 
 import org.alexd.jsonrpc.JSONRPCException;
 import org.json.JSONException;
 
 import java.util.HashMap;
+import java.util.List;
 
 import nl.triandria.utilities.SessionManager;
 import nl.triandria.utilities.Synchronization;
@@ -79,11 +77,27 @@ public class MainActivity extends AppCompatActivity {
             ArrayAdapter protocolAdapter = ArrayAdapter.createFromResource(getActivity(), R.array.protocols, android.R.layout.simple_spinner_item);
             protocolAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
             protocols.setAdapter(protocolAdapter);
+            Spinner database = dialogView.findViewById(R.id.database);
+            final HashMap<String, String> values = getLoginFragmentValues();
+            database.setOnClickListener(new View.OnClickListener() {
+
+                @Override
+                public void onClick(View view) {
+                    if (((Spinner) view).getAdapter().isEmpty()
+                            && values.get("username") != null
+                            && values.get("password") != null
+                            && values.get("url") != null) {
+                        List<String> databases = SessionManager.getDatabases(values.get("url"));
+                        ArrayAdapter databaseAdapter = new ArrayAdapter<>(
+                                getActivity(), android.R.layout.simple_list_item_1, databases);
+                        ((Spinner) view).setAdapter(databaseAdapter);
+                    }
+                }
+            });
             Button button_login_ok = dialogView.findViewById(R.id.button_login_ok);
             button_login_ok.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    HashMap<String, String> values = getLoginFragmentValues();
                     int uid = SessionManager.logIn(
                             values.get("username"),
                             values.get("password"),
@@ -118,12 +132,22 @@ public class MainActivity extends AppCompatActivity {
 
         private HashMap<String, String> getLoginFragmentValues() {
             HashMap<String, String> values = new HashMap<>();
-
+            Activity curActivity = getActivity();
+            values.put("username", ((EditText) curActivity.findViewById(R.id.username)).getText().toString());
+            values.put("password", ((EditText) curActivity.findViewById(R.id.password)).getText().toString());
+            values.put("database", ((Spinner) curActivity.findViewById(R.id.database)).getSelectedItem().toString());
+            values.put("url", ((Spinner) curActivity.findViewById(R.id.protocol)).getSelectedItem().toString());
             return values;
         }
 
-
-
+        private String getLoginUrl(View dialog) {
+            StringBuilder url = new StringBuilder();
+            url.append(((Spinner) dialog.findViewById(R.id.protocol)).getSelectedItem().toString());
+            url.append(((TextView) dialog.findViewById(R.id.url)).getText().toString());
+            url.append(':');
+            url.append(((TextView)dialog.findViewById(R.id.port)).getText().toString());
+            return url.toString();
+        }
 
 
     }
