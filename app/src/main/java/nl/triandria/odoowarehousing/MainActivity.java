@@ -1,6 +1,5 @@
 package nl.triandria.odoowarehousing;
 
-import android.app.Activity;
 import android.app.DialogFragment;
 import android.content.Intent;
 import android.os.Bundle;
@@ -8,8 +7,10 @@ import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Adapter;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
@@ -20,9 +21,11 @@ import android.widget.TextView;
 import org.alexd.jsonrpc.JSONRPCException;
 import org.json.JSONException;
 
+import java.net.URI;
 import java.util.HashMap;
 import java.util.List;
 
+import nl.triandria.utilities.GetDatabasesTask;
 import nl.triandria.utilities.SessionManager;
 import nl.triandria.utilities.Synchronization;
 
@@ -72,32 +75,41 @@ public class MainActivity extends AppCompatActivity {
         @Nullable
         @Override
         public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, Bundle savedInstanceState) {
-            LinearLayout dialogView = (LinearLayout) inflater.inflate(R.layout.dialog_login, container);
+            final LinearLayout dialogView = (LinearLayout) inflater.inflate(R.layout.dialog_login, container);
             Spinner protocols = dialogView.findViewById(R.id.protocol);
             ArrayAdapter protocolAdapter = ArrayAdapter.createFromResource(getActivity(), R.array.protocols, android.R.layout.simple_spinner_item);
             protocolAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
             protocols.setAdapter(protocolAdapter);
             Spinner database = dialogView.findViewById(R.id.database);
-            final HashMap<String, String> values = getLoginFragmentValues();
-            database.setOnClickListener(new View.OnClickListener() {
+            database.setOnTouchListener(new View.OnTouchListener() {
 
                 @Override
-                public void onClick(View view) {
-                    if (((Spinner) view).getAdapter().isEmpty()
-                            && values.get("username") != null
-                            && values.get("password") != null
-                            && values.get("url") != null) {
-                        List<String> databases = SessionManager.getDatabases(values.get("url"));
-                        ArrayAdapter databaseAdapter = new ArrayAdapter<>(
-                                getActivity(), android.R.layout.simple_list_item_1, databases);
-                        ((Spinner) view).setAdapter(databaseAdapter);
+                public boolean onTouch(View view, MotionEvent event) {
+                    if (event.getAction() == MotionEvent.ACTION_DOWN) {
+                        HashMap<String, String> values = getLoginFragmentValues(dialogView);
+                        Adapter adapter = ((Spinner) view).getAdapter();
+                        if (adapter == null || adapter.isEmpty()
+                                && values.get("username") != null
+                                && values.get("password") != null
+                                && values.get("protocol") != null
+                                && values.get("url") != null
+                                && values.get("port") != null) {
+                            List<String> databases;
+                            new GetDatabasesTask().execute(URI.create(values.get("url")));
+                            ArrayAdapter databaseAdapter = new ArrayAdapter<>(
+                                    getActivity(), android.R.layout.simple_list_item_1, databases);
+                            ((Spinner) view).setAdapter(databaseAdapter);
+                        }
                     }
+                    view.performClick();
+                    return true;
                 }
             });
             Button button_login_ok = dialogView.findViewById(R.id.button_login_ok);
             button_login_ok.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
+                    HashMap<String, String> values = getLoginFragmentValues(dialogView);
                     int uid = SessionManager.logIn(
                             values.get("username"),
                             values.get("password"),
@@ -124,29 +136,40 @@ public class MainActivity extends AppCompatActivity {
             button_login_cancel.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-
+                    getActivity().finish();
                 }
             });
             return dialogView;
         }
 
-        private HashMap<String, String> getLoginFragmentValues() {
+        private HashMap<String, String> getLoginFragmentValues(View dialog) {
             HashMap<String, String> values = new HashMap<>();
-            Activity curActivity = getActivity();
-            values.put("username", ((EditText) curActivity.findViewById(R.id.username)).getText().toString());
-            values.put("password", ((EditText) curActivity.findViewById(R.id.password)).getText().toString());
-            values.put("database", ((Spinner) curActivity.findViewById(R.id.database)).getSelectedItem().toString());
-            values.put("url", ((Spinner) curActivity.findViewById(R.id.protocol)).getSelectedItem().toString());
+            String database = "";
+            Object selectedDatabase = ((Spinner) dialog.findViewById(R.id.database)).getSelectedItem();
+            if (selectedDatabase != null) {
+                database = selectedDatabase.toString();
+            }
+            values.put("username", ((EditText) dialog.findViewById(R.id.username)).getText().toString());
+            values.put("password", ((EditText) dialog.findViewById(R.id.password)).getText().toString());
+            values.put("database", database);
+            values.put("url", getLoginUrl(dialog));
+            Log.d(TAG, "getLoginValues");
+            Log.d(TAG, values.toString());
             return values;
         }
 
         private String getLoginUrl(View dialog) {
-            StringBuilder url = new StringBuilder();
-            url.append(((Spinner) dialog.findViewById(R.id.protocol)).getSelectedItem().toString());
-            url.append(((TextView) dialog.findViewById(R.id.url)).getText().toString());
-            url.append(':');
-            url.append(((TextView)dialog.findViewById(R.id.port)).getText().toString());
-            return url.toString();
+            StringBuilder urlBuilder = new StringBuilder();
+            String protocol = "";
+            Object selectedProtocol = ((Spinner) dialog.findViewById(R.id.protocol)).getSelectedItem();
+            if (selectedProtocol != null) {
+                protocol = selectedProtocol.toString() + "://";
+            }
+            urlBuilder.append(protocol);
+            urlBuilder.append(((TextView) dialog.findViewById(R.id.url)).getText().toString());
+            urlBuilder.append(':');
+            urlBuilder.append(((TextView) dialog.findViewById(R.id.port)).getText().toString());
+            return urlBuilder.toString();
         }
 
 

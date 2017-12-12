@@ -2,6 +2,7 @@ package nl.triandria.utilities;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.os.AsyncTask;
 import android.util.Log;
 
 import org.alexd.jsonrpc.JSONRPCException;
@@ -9,8 +10,8 @@ import org.alexd.jsonrpc.JSONRPCHttpClient;
 import org.json.JSONArray;
 import org.json.JSONException;
 
+import java.net.URI;
 import java.util.ArrayList;
-import java.util.List;
 
 public class SessionManager {
 
@@ -51,17 +52,22 @@ public class SessionManager {
         return uid != 0;
     }
 
-    public static List<String> getDatabases(String url) {
-        JSONRPCHttpClient client = new JSONRPCHttpClient(url);
-        ArrayList<String> databases = new ArrayList<>();
-        try {
-            JSONArray result = client.callJSONArray("list", "db", "list");
-            for (int i = 0; i < result.length(); i++) {
-                databases.add(result.getString(i));
-            }
-        } catch (JSONRPCException | JSONException e) {
-            Log.d(TAG, "getDatabases error" + e.getMessage());
-        }
-        return databases;
-    }
 }
+    public class GetDatabasesTask extends AsyncTask<URI, Integer, Long> {
+
+        @Override
+        protected Long doInBackground(URI... urls) {
+            JSONRPCHttpClient client = new JSONRPCHttpClient(urls[0] + "/json");
+            ArrayList<String> databases = new ArrayList<>();
+            try {
+                JSONArray result = client.callJSONArray("list", "db", "list");
+                for (int i = 0; i < result.length(); i++) {
+                    databases.add(result.getString(i));
+                }
+            } catch (JSONRPCException | JSONException e) {
+                Log.d(TAG, "getDatabases error" + e.getMessage());
+            }
+            return 0L;// databases;
+        }// TODO how to return these data from the task to the UI? I must show an indeterminate
+
+    }
