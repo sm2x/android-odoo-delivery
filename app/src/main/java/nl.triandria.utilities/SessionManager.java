@@ -1,17 +1,23 @@
 package nl.triandria.utilities;
 
+import android.app.DialogFragment;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.util.Log;
+import android.widget.ArrayAdapter;
+import android.widget.Spinner;
 
 import org.alexd.jsonrpc.JSONRPCException;
 import org.alexd.jsonrpc.JSONRPCHttpClient;
 import org.json.JSONArray;
 import org.json.JSONException;
 
+import java.lang.ref.WeakReference;
 import java.net.URI;
 import java.util.ArrayList;
+
+import nl.triandria.odoowarehousing.R;
 
 public class SessionManager {
 
@@ -52,11 +58,17 @@ public class SessionManager {
         return uid != 0;
     }
 
-}
-    public class GetDatabasesTask extends AsyncTask<URI, Integer, Long> {
+
+    public static class GetDatabasesTask extends AsyncTask<URI, Integer, ArrayList<String>> {
+
+        WeakReference<DialogFragment> weakReference;
+
+        public GetDatabasesTask(DialogFragment dialog){
+            weakReference = new WeakReference<>(dialog);
+        }
 
         @Override
-        protected Long doInBackground(URI... urls) {
+        protected ArrayList<String> doInBackground(URI... urls) {
             JSONRPCHttpClient client = new JSONRPCHttpClient(urls[0] + "/json");
             ArrayList<String> databases = new ArrayList<>();
             try {
@@ -67,7 +79,15 @@ public class SessionManager {
             } catch (JSONRPCException | JSONException e) {
                 Log.d(TAG, "getDatabases error" + e.getMessage());
             }
-            return 0L;// databases;
-        }// TODO how to return these data from the task to the UI? I must show an indeterminate
+            return databases;
+        }
 
+        @Override
+        protected void onPostExecute(ArrayList<String> databases) {
+            super.onPostExecute(databases);
+            ArrayAdapter databaseAdapter = new ArrayAdapter<>(
+                    weakReference.get().getActivity(), android.R.layout.simple_list_item_1, databases);
+            ((Spinner) weakReference.get().getDialog().findViewById(R.id.database)).setAdapter(databaseAdapter);
+        }
     }
+}

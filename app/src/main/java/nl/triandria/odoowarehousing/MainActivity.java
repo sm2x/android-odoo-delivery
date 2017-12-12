@@ -25,7 +25,6 @@ import java.net.URI;
 import java.util.HashMap;
 import java.util.List;
 
-import nl.triandria.utilities.GetDatabasesTask;
 import nl.triandria.utilities.SessionManager;
 import nl.triandria.utilities.Synchronization;
 
@@ -94,11 +93,7 @@ public class MainActivity extends AppCompatActivity {
                                 && values.get("protocol") != null
                                 && values.get("url") != null
                                 && values.get("port") != null) {
-                            List<String> databases;
-                            new GetDatabasesTask().execute(URI.create(values.get("url")));
-                            ArrayAdapter databaseAdapter = new ArrayAdapter<>(
-                                    getActivity(), android.R.layout.simple_list_item_1, databases);
-                            ((Spinner) view).setAdapter(databaseAdapter);
+                            new SessionManager.GetDatabasesTask(LoginDialog.this).execute(URI.create(values.get("url")));
                         }
                     }
                     view.performClick();
