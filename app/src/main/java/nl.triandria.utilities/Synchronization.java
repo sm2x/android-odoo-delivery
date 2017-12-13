@@ -1,8 +1,9 @@
 package nl.triandria.utilities;
 
 
-import android.content.ContentValues;
+import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
@@ -22,7 +23,8 @@ import java.util.List;
 
 import database.StockPicking;
 
-public class Synchronization {
+public class Synchronization extends BroadcastReceiver {
+
 
     private static final String[] MODELS_TO_SYNC = {
             "stock_picking",
@@ -32,14 +34,12 @@ public class Synchronization {
             "stock_location",
     };
 
-    /**
-     * The goal of the this function to replicate data of the remote server locally.
-     * First it checks which records exist on the server that do not exist locally and fetches them
-     * Then it checks whether any records that already exist locally have been updated on the server
-     * by checking the last_update_date saved locally and the write_date of the records of the given
-     * table.
-     */
-    public static boolean synchronize(Context context) throws JSONRPCException, JSONException {
+    //**
+    // Not sure if we need this at this point
+    //
+    // */
+    @Override
+    public void onReceive(Context context, Intent intent) {
         SharedPreferences sharedPreferences = context.getSharedPreferences(
                 SessionManager.SHARED_PREFERENCES_FILENAME, Context.MODE_PRIVATE);
         String last_sync_date = sharedPreferences.getString("last_sync_date", null);
@@ -85,19 +85,23 @@ public class Synchronization {
                             JSONObject rec = records.getJSONObject(i);
                             db.execSQL("UPDATE " + model +
                                     " SET " + modelFields +
-                                    " VALUES " +  rec.toString() +
+                                    " VALUES " + rec.toString() +
                                     " WHERE id=" + rec.getInt("id"));
                         }
                     }
                 }
+                // TODO make sure that this is in the same timezone as the server
                 sharedPreferences.edit().putString("last_sync_date", format_date(new Date())).apply();
                 db.setTransactionSuccessful();
-                return true;
             }
+        } catch (JSONRPCException e) {
+            // TODO
+            e.printStackTrace();
+        } catch (JSONException e) {
+            e.printStackTrace();
         } finally {
             db.endTransaction();
         }
-        return false;
     }
 
     private static String format_date(Date date) {

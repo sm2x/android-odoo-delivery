@@ -10,23 +10,16 @@ import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Adapter;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
-import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.Spinner;
 import android.widget.TextView;
 
-import org.alexd.jsonrpc.JSONRPCException;
-import org.json.JSONException;
-
 import java.net.URI;
 import java.util.HashMap;
-import java.util.List;
 
 import nl.triandria.utilities.SessionManager;
-import nl.triandria.utilities.Synchronization;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -85,16 +78,17 @@ public class MainActivity extends AppCompatActivity {
                 @Override
                 public boolean onTouch(View view, MotionEvent event) {
                     if (event.getAction() == MotionEvent.ACTION_DOWN) {
+                        //TODO put back
                         HashMap<String, String> values = getLoginFragmentValues(dialogView);
-                        Adapter adapter = ((Spinner) view).getAdapter();
-                        if (adapter == null || adapter.isEmpty()
-                                && values.get("username") != null
-                                && values.get("password") != null
-                                && values.get("protocol") != null
-                                && values.get("url") != null
-                                && values.get("port") != null) {
+//                        Adapter adapter = ((Spinner) view).getAdapter();
+//                        if (adapter == null || adapter.isEmpty()
+//                                && values.get("username") != null
+//                                && values.get("password") != null
+//                                && values.get("protocol") != null
+//                                && values.get("url") != null
+//                                && values.get("port") != null) {
                             new SessionManager.GetDatabasesTask(LoginDialog.this).execute(URI.create(values.get("url")));
-                        }
+                        //}
                     }
                     view.performClick();
                     return true;
@@ -105,26 +99,12 @@ public class MainActivity extends AppCompatActivity {
                 @Override
                 public void onClick(View view) {
                     HashMap<String, String> values = getLoginFragmentValues(dialogView);
-                    int uid = SessionManager.logIn(
+                    new SessionManager.LogInTask().execute(
+                            values.get("url"),
                             values.get("username"),
                             values.get("password"),
                             values.get("database"),
-                            values.get("url"),
-                            getActivity());
-                    if (uid != 0) {
-                        Log.d(TAG, "Login successful, uid ==>" + uid);
-                        try {
-                            Log.d(TAG, "Starting synchronisation");
-                            Synchronization.synchronize(getActivity());
-                        } catch (JSONRPCException e) {
-                            // TODO
-                        } catch (JSONException e) {
-                            // TODO
-                        }
-                    } else {
-                        // TODO show failure toast with exact failure
-                    }
-
+                            dialogView.getContext());
                 }
             });
             Button button_login_cancel = dialogView.findViewById(R.id.button_login_cancel);
@@ -144,10 +124,15 @@ public class MainActivity extends AppCompatActivity {
             if (selectedDatabase != null) {
                 database = selectedDatabase.toString();
             }
-            values.put("username", ((EditText) dialog.findViewById(R.id.username)).getText().toString());
-            values.put("password", ((EditText) dialog.findViewById(R.id.password)).getText().toString());
+            // TODO put back
+//            values.put("username", ((EditText) dialog.findViewById(R.id.username)).getText().toString());
+//            values.put("password", ((EditText) dialog.findViewById(R.id.password)).getText().toString());
+//            values.put("database", database);
+//            values.put("url", getLoginUrl(dialog));
+            values.put("username", "admin");
+            values.put("password", "admin");
             values.put("database", database);
-            values.put("url", getLoginUrl(dialog));
+            values.put("url", "http://10.0.2.2:6069");
             Log.d(TAG, "getLoginValues");
             Log.d(TAG, values.toString());
             return values;
