@@ -10,11 +10,14 @@ import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Adapter;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.Spinner;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.net.URI;
 import java.util.HashMap;
@@ -78,17 +81,16 @@ public class MainActivity extends AppCompatActivity {
                 @Override
                 public boolean onTouch(View view, MotionEvent event) {
                     if (event.getAction() == MotionEvent.ACTION_DOWN) {
-                        //TODO put back
                         HashMap<String, String> values = getLoginFragmentValues(dialogView);
-//                        Adapter adapter = ((Spinner) view).getAdapter();
-//                        if (adapter == null || adapter.isEmpty()
-//                                && values.get("username") != null
-//                                && values.get("password") != null
-//                                && values.get("protocol") != null
-//                                && values.get("url") != null
-//                                && values.get("port") != null) {
+                        Adapter adapter = ((Spinner) view).getAdapter();
+                        if (adapter == null || adapter.isEmpty()
+                                && values.get("username") != null
+                                && values.get("password") != null
+                                && values.get("protocol") != null
+                                && values.get("url") != null
+                                && values.get("port") != null) {
                             new SessionManager.GetDatabasesTask(LoginDialog.this).execute(URI.create(values.get("url")));
-                        //}
+                        }
                     }
                     view.performClick();
                     return true;
@@ -99,7 +101,13 @@ public class MainActivity extends AppCompatActivity {
                 @Override
                 public void onClick(View view) {
                     HashMap<String, String> values = getLoginFragmentValues(dialogView);
-                    new SessionManager.LogInTask().execute(
+                    boolean valid = validateLoginFragmentValues(values);
+                    if (!valid) {
+                        Log.d(TAG, "Invalid data entry");
+                        Toast.makeText(dialogView.getContext(), "Invalid data.", Toast.LENGTH_LONG).show();
+                        return;
+                    }
+                    new SessionManager.LogInTask(getDialog()).execute(
                             values.get("url"),
                             values.get("username"),
                             values.get("password"),
@@ -117,6 +125,16 @@ public class MainActivity extends AppCompatActivity {
             return dialogView;
         }
 
+        private boolean validateLoginFragmentValues(HashMap<String, String> values) {
+            for (String key : values.keySet()){
+                String value = values.get(key);
+                if (value == null || value.trim().isEmpty()){
+                    return false;
+                }
+            }
+            return true;
+        }
+
         private HashMap<String, String> getLoginFragmentValues(View dialog) {
             HashMap<String, String> values = new HashMap<>();
             String database = "";
@@ -124,15 +142,10 @@ public class MainActivity extends AppCompatActivity {
             if (selectedDatabase != null) {
                 database = selectedDatabase.toString();
             }
-            // TODO put back
-//            values.put("username", ((EditText) dialog.findViewById(R.id.username)).getText().toString());
-//            values.put("password", ((EditText) dialog.findViewById(R.id.password)).getText().toString());
-//            values.put("database", database);
-//            values.put("url", getLoginUrl(dialog));
-            values.put("username", "admin");
-            values.put("password", "admin");
+            values.put("username", ((EditText) dialog.findViewById(R.id.username)).getText().toString());
+            values.put("password", ((EditText) dialog.findViewById(R.id.password)).getText().toString());
             values.put("database", database);
-            values.put("url", "http://10.0.2.2:6069");
+            values.put("url", getLoginUrl(dialog));
             Log.d(TAG, "getLoginValues");
             Log.d(TAG, values.toString());
             return values;

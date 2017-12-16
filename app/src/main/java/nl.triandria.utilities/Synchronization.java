@@ -94,10 +94,8 @@ public class Synchronization extends BroadcastReceiver {
                 sharedPreferences.edit().putString("last_sync_date", format_date(new Date())).apply();
                 db.setTransactionSuccessful();
             }
-        } catch (JSONRPCException e) {
+        } catch (JSONRPCException | JSONException e) {
             // TODO
-            e.printStackTrace();
-        } catch (JSONException e) {
             e.printStackTrace();
         } finally {
             db.endTransaction();
