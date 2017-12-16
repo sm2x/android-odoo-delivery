@@ -3,8 +3,10 @@ package nl.triandria.utilities;
 import android.app.Dialog;
 import android.app.DialogFragment;
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
+import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 import android.view.View;
 import android.widget.ArrayAdapter;
@@ -36,7 +38,7 @@ public class SessionManager {
 
         WeakReference<Dialog> dialog;
 
-        public LogInTask(Dialog dialog){
+        public LogInTask(Dialog dialog) {
             this.dialog = new WeakReference<Dialog>(dialog);
         }
 
@@ -52,11 +54,14 @@ public class SessionManager {
         protected void onPostExecute(String err_message) {
             ProgressBar progressBar = this.dialog.get().findViewById(R.id.indeterminateBar);
             progressBar.setVisibility(View.GONE);
-            if (err_message != null){
+            if (err_message != null) {
                 Toast.makeText(this.dialog.get().getContext(), err_message, Toast.LENGTH_LONG).show();
             } else {
                 this.dialog.get().dismiss();
             }
+            Log.d(TAG, "Login successful, starting sync");
+            LocalBroadcastManager.getInstance(this.dialog.get().getContext()).sendBroadcast(
+                    new Intent("synchronize"));
             super.onPostExecute(err_message);
         }
 
@@ -80,7 +85,7 @@ public class SessionManager {
                         .put(new JSONObject());
                 params.put("args", argsArray);
                 Object uid = client.call("authenticate", params);
-                if (uid instanceof Integer && (int)uid != 0) {
+                if (uid instanceof Integer && (int) uid != 0) {
                     Log.d(TAG, "Logged in with UID ===> " + uid.toString());
                     SharedPreferences preferences = context.getSharedPreferences(SHARED_PREFERENCES_FILENAME, Context.MODE_PRIVATE);
                     preferences.edit().putInt("uid", (int) uid)
@@ -136,7 +141,7 @@ public class SessionManager {
                 for (int i = 0; i < result.length(); i++) {
                     databases.add(result.getString(i));
                 }
-            } catch (JSONRPCException | JSONException e) {
+            } catch (JSONRPCException | JSONException | IllegalArgumentException e) {
                 e.printStackTrace();
             }
             return databases;

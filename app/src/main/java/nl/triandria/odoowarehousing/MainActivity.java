@@ -1,9 +1,12 @@
 package nl.triandria.odoowarehousing;
 
 import android.app.DialogFragment;
+import android.content.BroadcastReceiver;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -23,14 +26,28 @@ import java.net.URI;
 import java.util.HashMap;
 
 import nl.triandria.utilities.SessionManager;
+import nl.triandria.utilities.Synchronization;
 
 public class MainActivity extends AppCompatActivity {
 
     private static final String TAG = "MainActivity";
 
+
+    @Override
+    protected void onResume() {
+        // TODO this has to be removed. Q: when should sync take place?
+        Log.d(TAG, "sync");
+        Synchronization syncReceiver = new Synchronization();
+        LocalBroadcastManager.getInstance(this).sendBroadcast(new Intent("synchronize"));
+        super.onResume();
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        Log.d(TAG, "Oncreate");
+        Synchronization syncReceiver = new Synchronization();
+        LocalBroadcastManager.getInstance(this).registerReceiver(syncReceiver, new IntentFilter("synchronize"));
         setContentView(R.layout.activity_main);
         Button buttonDeliver = (Button) findViewById(R.id.button_deliver);
         buttonDeliver.setOnClickListener(new View.OnClickListener() {
@@ -48,10 +65,7 @@ public class MainActivity extends AppCompatActivity {
         });
         boolean isLoggedIn = SessionManager.isLoggedIn(this);
 
-        if (isLoggedIn) {
-            //TODO start sync
-            Log.d(TAG, "User is logged in, starting sync");
-        } else {
+        if (!isLoggedIn) {
             Log.d(TAG, "User is NOT logged in.");
             LoginDialog loginDialog = new LoginDialog();
             loginDialog.setCancelable(false);

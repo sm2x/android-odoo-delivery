@@ -11,6 +11,7 @@ import java.util.List;
 public class StockPicking extends SQLiteOpenHelper{
 
     public static final String DATABASE_NAME = "stock.db";
+    // TODO fill and test
     public static final HashMap<String, List<String>> TABLE_FIELDS = new HashMap<>();
     private static final int DATABASE_VERSION = 1;
     public StockPicking(Context context){
@@ -18,8 +19,13 @@ public class StockPicking extends SQLiteOpenHelper{
     }
 
     @Override
-    public void onCreate(SQLiteDatabase db) {
+    public void onConfigure(SQLiteDatabase db) {
         db.setForeignKeyConstraintsEnabled(true);
+        super.onConfigure(db);
+    }
+
+    @Override
+    public void onCreate(SQLiteDatabase db) {
         db.beginTransaction();
         try {
             db.execSQL("CREATE TABLE stock_picking " +
