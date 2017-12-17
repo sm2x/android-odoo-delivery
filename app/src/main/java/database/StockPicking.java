@@ -4,18 +4,36 @@ import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
+import org.json.JSONArray;
+
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 
 
-public class StockPicking extends SQLiteOpenHelper{
+public class StockPicking extends SQLiteOpenHelper {
 
     public static final String DATABASE_NAME = "stock.db";
     // TODO fill and test
-    public static final HashMap<String, List<String>> TABLE_FIELDS = new HashMap<>();
+    public static HashMap<String, JSONArray> TABLE_FIELDS = new HashMap<>();
     private static final int DATABASE_VERSION = 1;
-    public StockPicking(Context context){
+
+    public StockPicking(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
+    }
+
+    static {
+        TABLE_FIELDS.put("res_company", new JSONArray(Arrays.asList("id", "name")));
+        TABLE_FIELDS.put("res_partner", new JSONArray(Arrays.asList("id", "name", "company_id", "comment",
+                "street", "street2", "city", "zip", "country_id", "ref", "barcode")));
+        TABLE_FIELDS.put("res_users", new JSONArray(Arrays.asList("id", "company_id", "partner_id")));
+        TABLE_FIELDS.put("stock_location", new JSONArray(Arrays.asList("id", "comment", "complete_name",
+                "barcode", "name")));
+        TABLE_FIELDS.put("stock_picking_type", new JSONArray(Arrays.asList("id", "code", "name")));
+        TABLE_FIELDS.put("stock_picking", new JSONArray(Arrays.asList("id", "origin", "date_done", "write_uid",
+                "location_id", "priority", "picking_type_id", "partner_id", "move_type", "company_id",
+                "note", "state", "owner_id", "backorder_id", "create_uid", "min_date", "write_date",
+                "date", "name", "create_date", "location_dest_id", "max_date")));
     }
 
     @Override
@@ -51,7 +69,7 @@ public class StockPicking extends SQLiteOpenHelper{
                     "create_date INTEGER," +
                     "location_dest_id INTEGER," +
                     "max_date INTEGER," +
-                    "FOREIGN KEY (write_uid) REFERENCES res_user(id)," +
+                    "FOREIGN KEY (write_uid) REFERENCES res_users(id)," +
                     "FOREIGN KEY (location_id) REFERENCES stock_location(id)," +
                     "FOREIGN KEY (picking_type_id) REFERENCES stock_picking_type(id)," +
                     "FOREIGN KEY (partner_id) REFERENCES res_partner(id)," +
@@ -76,7 +94,7 @@ public class StockPicking extends SQLiteOpenHelper{
                     "name TEXT," +
                     "company_id INTEGER," +
                     "comment TEXT," +
-                    "steet TEXT," +
+                    "street TEXT," +
                     "street2 TEXT," +
                     "city TEXT," +
                     "zip INTEGER," +

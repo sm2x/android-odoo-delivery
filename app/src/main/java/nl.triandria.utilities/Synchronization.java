@@ -2,6 +2,7 @@ package nl.triandria.utilities;
 
 
 import android.content.BroadcastReceiver;
+import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -22,6 +23,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 
 import database.StockPicking;
@@ -31,11 +33,12 @@ public class Synchronization extends BroadcastReceiver {
     private static final String TAG = "Synchronization";
 
     private static final String[] MODELS_TO_SYNC = {
-            "stock_picking",
-            "res_users",
             "res_company",
             "res_partner",
+            "res_users",
             "stock_location",
+            "stock_picking_type",
+            "stock_picking",
     };
 
     private static class TaskSync extends AsyncTask<Context, Integer, Boolean> {
@@ -55,7 +58,7 @@ public class Synchronization extends BroadcastReceiver {
                 db.beginTransaction();
                 for (final String model : MODELS_TO_SYNC) {
                     Log.d(TAG, "Syncing model: " + model);
-                    final List<String> modelFields = StockPicking.TABLE_FIELDS.get(model);
+                    final JSONArray modelFields = StockPicking.TABLE_FIELDS.get(model);
                     JSONArray local_ids = new JSONArray();
                     Cursor cr = db.rawQuery("SELECT id FROM " + model, null);
                     // if we already have some
@@ -67,7 +70,7 @@ public class Synchronization extends BroadcastReceiver {
                     }
                     Log.d(TAG, "local_ids " + local_ids.toString());
                     JSONRPCHttpClient client = new JSONRPCHttpClient(url);
-                    // TODO clean this, see if there are any libraries available
+                    // TODO clean this make one search_read call, see if there are any libraries available, if not, create one
                     JSONArray argsArray = new JSONArray();
                     JSONObject params = new JSONObject();
                     params.put("service", "object");
@@ -96,42 +99,57 @@ public class Synchronization extends BroadcastReceiver {
                     read_params.put("method", "execute_kw");
                     JSONArray argsRead = new JSONArray();
                     JSONArray outerArray = new JSONArray();
-                    JSONArray outerArray2 = new JSONArray();
                     outerArray.put(remote_ids);
+                    JSONObject fields = new JSONObject();
+                    fields.put("fields", modelFields);
                     argsRead.put(database_name)
                             .put(uid)
                             .put(password)
                             .put(model.replace('_', '.'))
                             .put("read")
                             .put(outerArray)
-                            .put(modelFields);
+                            .put(fields);
                     read_params.put("args", argsRead);
                     JSONArray records = client.callJSONArray("execute_kw", read_params);
                     Log.d(TAG, "Records read: " + records.toString());
-                    // TODO continue debugging here
-                    db.execSQL("INSERT INTO " + model + modelFields + records);
+                    for (int i = 0; i < records.length(); i++) {
+                        JSONObject record = (JSONObject) records.get(i);
+                        db.insert(model, null, getContentValues(record));// TODO error here, foreign key
+                    }
                     // fetch all the records that have changed
                     if (last_sync_date != null && !last_sync_date.isEmpty()) {
-                        JSONArray remote_changed_record_ids = client.callJSONArray(
-                                "search",
-                                model,
-                                Arrays.asList(
-                                        Arrays.asList("id", "in", local_ids),
-                                        Arrays.asList("write_date", ">", last_sync_date)));
-                        JSONArray updated_records = client.callJSONArray(
-                                "read",
-                                model,
-                                remote_changed_record_ids,
-                                new HashMap() {{
-                                    put("fields", modelFields);
-                                }});
-                        Log.d(TAG, "Records that were updated after " + last_sync_date + "\n " + updated_records.toString());
-                        for (int i = 0; i < updated_records.length(); i++) {
-                            JSONObject rec = updated_records.getJSONObject(i);
-                            db.execSQL("UPDATE " + model +
-                                    " SET " + modelFields +
-                                    " VALUES " + rec.toString() +
-                                    " WHERE id=" + rec.getInt("id"));
+                        JSONArray argsArraySearchRead = new JSONArray();
+                        JSONObject paramsSearchRead = new JSONObject();
+                        paramsSearchRead.put("service", "object");
+                        paramsSearchRead.put("method", "execute_kw");
+                        JSONArray outerDomain2SearchRead = new JSONArray();
+                        JSONArray outerDomainSearchRead = new JSONArray();
+                        JSONArray domainSearchRead = new JSONArray();
+                        domainSearchRead.put("id")
+                                .put("in")
+                                .put(local_ids);
+                        JSONArray domainSearchRead2 = new JSONArray();
+                        domainSearchRead2.put("write_date")
+                                .put(">")
+                                .put(last_sync_date);
+                        outerDomainSearchRead.put(domainSearchRead);
+                        outerDomainSearchRead.put(domainSearchRead2);
+                        outerDomain2SearchRead.put(outerDomainSearchRead);
+                        argsArraySearchRead.put(database_name)
+                                .put(uid)
+                                .put(password)
+                                .put(model.replace('_', '.'))
+                                .put("search_read")
+                                .put(outerDomain2SearchRead)
+                                .put(fields);
+                        paramsSearchRead.put("args", argsArraySearchRead);
+                        JSONArray remoteIdsSearchRead = client.callJSONArray("execute_kw", paramsSearchRead);
+                        Log.d(TAG, "Records that were updated after " + last_sync_date + "\n " + remoteIdsSearchRead.toString());
+                        for (int i = 0; i < remoteIdsSearchRead.length(); i++) {
+                            JSONObject record = (JSONObject) remoteIdsSearchRead.get(i);
+                            int count = db.update(model, getContentValues(record), "id = " + record.getInt("id"), null);
+                            Log.d(TAG, "Updating row with id " + record.get("id") + " because we last synced on "
+                                    + last_sync_date + " and it has been updated." + "rows affected" + count);
                         }
                     }
                     // TODO make sure that this is in the same timezone as the server
@@ -148,6 +166,22 @@ public class Synchronization extends BroadcastReceiver {
         }
     }
 
+    private static ContentValues getContentValues(JSONObject record) throws JSONException {
+        ContentValues values = new ContentValues();
+        Iterator<String> keys = record.keys();
+        while (keys.hasNext()) {
+            String key = keys.next();
+            // on foreign keys we the id + name is returned. We only care about the id
+            Object value = record.get(key);
+            if (value instanceof JSONArray) {
+                values.put(key, ((JSONArray) record.get(key)).get(0).toString());
+            } else {
+                values.put(key, record.get(key).toString());
+            }
+        }
+        Log.d(TAG, "ContentValues for record " + values.toString());
+        return values;
+    }
 
     @Override
     public void onReceive(Context context, Intent intent) {

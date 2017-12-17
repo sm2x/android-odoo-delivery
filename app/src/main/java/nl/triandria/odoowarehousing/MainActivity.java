@@ -35,9 +35,8 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     protected void onResume() {
-        // TODO this has to be removed. Q: when should sync take place?
+        // TODO this has to be removed. Q: when should sync take place? first once on onCreate and then every X minutes as service (X defined in settings)
         Log.d(TAG, "sync");
-        Synchronization syncReceiver = new Synchronization();
         LocalBroadcastManager.getInstance(this).sendBroadcast(new Intent("synchronize"));
         super.onResume();
     }
