@@ -10,7 +10,6 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.AsyncTask;
 import android.util.Log;
-import android.widget.ArrayAdapter;
 
 import org.alexd.jsonrpc.JSONRPCException;
 import org.alexd.jsonrpc.JSONRPCHttpClient;
@@ -19,12 +18,8 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.Iterator;
-import java.util.List;
 
 import database.StockPicking;
 
@@ -44,7 +39,7 @@ public class Synchronization extends BroadcastReceiver {
     private static class TaskSync extends AsyncTask<Context, Integer, Boolean> {
 
         @Override
-        protected Boolean doInBackground(Context... contexts) {
+        protected Boolean doInBackground(Context... contexts) {// TODO fetch only res_partner and stock_picking records that have to do with us (we get OOM)
             SharedPreferences sharedPreferences = contexts[0].getSharedPreferences(
                     SessionManager.SHARED_PREFERENCES_FILENAME, Context.MODE_PRIVATE);
             String last_sync_date = sharedPreferences.getString("last_sync_date", null);
@@ -52,6 +47,7 @@ public class Synchronization extends BroadcastReceiver {
             int uid = sharedPreferences.getInt("uid", 0);
             String password = sharedPreferences.getString("password", null);
             String database_name = sharedPreferences.getString("database", null);
+            int uid_partner_id = sharedPreferences.getInt("uid_partner_id", 0);
             SQLiteDatabase db = new StockPicking(contexts[0]).getWritableDatabase();
             Log.d(TAG, "Starting synchronization, last_sync_date " + last_sync_date);
             try {
@@ -81,6 +77,14 @@ public class Synchronization extends BroadcastReceiver {
                     domain.put("id");
                     domain.put("not in");
                     domain.put(local_ids);
+                    // TODO the domains below should be inserted on every call, continue...
+                    if (model.equals("stock_picking")){
+                        JSONArray pickingsAssigned = new JSONArray();
+                        pickingsAssigned.put("owner_id");
+                        pickingsAssigned.put("=");
+                        pickingsAssigned.put(uid_partner_id);
+                        outerDomain.put(pickingsAssigned);
+                    }
                     outerDomain.put(domain);
                     outerDomain2.put(outerDomain);
                     argsArray.put(database_name)

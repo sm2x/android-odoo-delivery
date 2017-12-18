@@ -87,8 +87,13 @@ public class SessionManager {
                 Object uid = client.call("authenticate", params);
                 if (uid instanceof Integer && (int) uid != 0) {
                     Log.d(TAG, "Logged in with UID ===> " + uid.toString());
+
+                    int uid_partner_id = getUidPartnerId((int) uid, client, database, password);
+                    Log.d(TAG, "UidPartnerId === >" + uid_partner_id);
                     SharedPreferences preferences = context.getSharedPreferences(SHARED_PREFERENCES_FILENAME, Context.MODE_PRIVATE);
-                    preferences.edit().putInt("uid", (int) uid)
+                    preferences.edit()
+                            .putInt("uid", (int) uid)
+                            .putInt("uid_partner_id", uid_partner_id)
                             .putString("username", username)
                             .putString("password", password)
                             .putString("database", database)
@@ -114,6 +119,30 @@ public class SessionManager {
         SharedPreferences preferences = context.getSharedPreferences(SHARED_PREFERENCES_FILENAME, Context.MODE_PRIVATE);
         Integer uid = preferences.getInt("uid", 0);
         return uid != 0;
+    }
+
+    private static int getUidPartnerId(int uid, JSONRPCHttpClient client, String database_name, String password)
+            throws JSONException, JSONRPCException {
+        JSONArray argsArray = new JSONArray();
+        JSONObject params = new JSONObject();
+        params.put("service", "object");
+        params.put("method", "execute_kw");
+        JSONArray outerDomain2 = new JSONArray();
+        JSONArray outerDomain = new JSONArray();
+        JSONArray domain = new JSONArray();
+        domain.put("id");
+        domain.put("=");
+        domain.put(uid);
+        outerDomain.put(domain);
+        outerDomain2.put(outerDomain);
+        argsArray.put(database_name)
+                .put(uid)
+                .put(password)
+                .put("res_partner")
+                .put("search")
+                .put(outerDomain2);
+        params.put("args", argsArray);
+        return (int) client.callInt("execute_kw", params);
     }
 
 

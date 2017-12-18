@@ -19,4 +19,5 @@
     <string name="error_malformed_url">Wrong URL</string>
     <string name="internal">Internal</string>
     <string name="packs">Packs</string>
+    <string name="inventory">Inventory</string>
 </resources>

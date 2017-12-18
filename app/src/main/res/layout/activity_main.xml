@@ -1,52 +1,55 @@
 <?xml version="1.0" encoding="utf-8"?>
-<GridLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/layout_main_activity"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent">
 
-
-    <Button
-        android:id="@+id/button_deliver"
+    <GridLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@string/button_deliver"
-        style="?android:attr/buttonBarButtonStyle"/>
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="70dp"
+        android:columnCount="2">
 
-    <Button
-        android:id="@+id/button_pickup"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/button_pickup"
-        style="?android:attr/buttonBarButtonStyle"/>
+        <Button
+            android:id="@+id/button_deliver"
+            style="?android:attr/buttonBarButtonStyle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:padding="50dp"
+            android:text="@string/button_deliver" />
 
-    <Button
-        android:id="@+id/button_internal_move"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/internal"
-        style="?android:attr/buttonBarButtonStyle"
-        />
+        <Button
+            android:id="@+id/button_pickup"
+            style="?android:attr/buttonBarButtonStyle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:padding="50dp"
+            android:text="@string/button_pickup" />
 
-    <Button
-        android:id="@+id/button_packs"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/packs"
-        style="?android:attr/buttonBarButtonStyle"
-        />
+        <Button
+            android:id="@+id/button_internal_move"
+            style="?android:attr/buttonBarButtonStyle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:padding="50dp"
+            android:text="@string/internal" />
 
-    <!--Insert a whole empty line-->
-
-    <Button
-        android:id="@+id/button_inventory_adjust"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/internal"
-        style="?android:attr/buttonBarButtonStyle"
-        />
-
-
+        <Button
+            android:id="@+id/button_packs"
+            style="?android:attr/buttonBarButtonStyle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:padding="50dp"
+            android:text="@string/packs" />
 
 
-
-</GridLayout>
+        <Button
+            android:id="@+id/button_inventory_adjust"
+            style="?android:attr/buttonBarButtonStyle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:padding="50dp"
+            android:text="@string/inventory" />
+    </GridLayout>
+</RelativeLayout>

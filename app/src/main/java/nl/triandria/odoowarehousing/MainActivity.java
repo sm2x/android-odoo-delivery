@@ -1,7 +1,6 @@
 package nl.triandria.odoowarehousing;
 
 import android.app.DialogFragment;
-import android.content.BroadcastReceiver;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
@@ -37,7 +36,7 @@ public class MainActivity extends AppCompatActivity {
     protected void onResume() {
         // TODO this has to be removed. Q: when should sync take place? first once on onCreate and then every X minutes as service (X defined in settings)
         Log.d(TAG, "sync");
-        LocalBroadcastManager.getInstance(this).sendBroadcast(new Intent("synchronize"));
+        //LocalBroadcastManager.getInstance(this).sendBroadcast(new Intent("synchronize"));
         super.onResume();
     }
 

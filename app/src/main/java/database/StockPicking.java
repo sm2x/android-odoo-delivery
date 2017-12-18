@@ -8,7 +8,6 @@ import org.json.JSONArray;
 
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.List;
 
 
 public class StockPicking extends SQLiteOpenHelper {
@@ -41,6 +40,7 @@ public class StockPicking extends SQLiteOpenHelper {
         db.setForeignKeyConstraintsEnabled(true);
         super.onConfigure(db);
     }
+
 
     @Override
     public void onCreate(SQLiteDatabase db) {
