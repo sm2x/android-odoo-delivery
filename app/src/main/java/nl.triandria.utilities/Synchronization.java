@@ -29,17 +29,18 @@ public class Synchronization extends BroadcastReceiver {
 
     private static final String[] MODELS_TO_SYNC = {
             "res_company",
-            "res_partner",
             "res_users",
             "stock_location",
             "stock_picking_type",
             "stock_picking",
+            "res_partner",
     };
 
+    // TODO this should be launched by a service
     private static class TaskSync extends AsyncTask<Context, Integer, Boolean> {
 
         @Override
-        protected Boolean doInBackground(Context... contexts) {// TODO fetch only res_partner and stock_picking records that have to do with us (we get OOM)
+        protected Boolean doInBackground(Context... contexts) {
             SharedPreferences sharedPreferences = contexts[0].getSharedPreferences(
                     SessionManager.SHARED_PREFERENCES_FILENAME, Context.MODE_PRIVATE);
             String last_sync_date = sharedPreferences.getString("last_sync_date", null);
@@ -49,9 +50,12 @@ public class Synchronization extends BroadcastReceiver {
             String database_name = sharedPreferences.getString("database", null);
             int uid_partner_id = sharedPreferences.getInt("uid_partner_id", 0);
             SQLiteDatabase db = new StockPicking(contexts[0]).getWritableDatabase();
-            Log.d(TAG, "Starting synchronization, last_sync_date " + last_sync_date);
+            Log.d(TAG, "Starting synchronization, last_sync_date " + last_sync_date + " owner_id " + uid_partner_id);
             try {
                 db.beginTransaction();
+                // this will be filled after the stock_picking model is synced, we want to fetch only
+                // relevant partners not all of them
+                JSONArray partnersToFetch = new JSONArray();
                 for (final String model : MODELS_TO_SYNC) {
                     Log.d(TAG, "Syncing model: " + model);
                     final JSONArray modelFields = StockPicking.TABLE_FIELDS.get(model);
@@ -66,7 +70,7 @@ public class Synchronization extends BroadcastReceiver {
                     }
                     Log.d(TAG, "local_ids " + local_ids.toString());
                     JSONRPCHttpClient client = new JSONRPCHttpClient(url);
-                    // TODO clean this make one search_read call, see if there are any libraries available, if not, create one
+                    // TODO see if there are any libraries available, if not, create one, REFACTOR THIS
                     JSONArray argsArray = new JSONArray();
                     JSONObject params = new JSONObject();
                     params.put("service", "object");
@@ -77,81 +81,68 @@ public class Synchronization extends BroadcastReceiver {
                     domain.put("id");
                     domain.put("not in");
                     domain.put(local_ids);
-                    // TODO the domains below should be inserted on every call, continue...
-                    if (model.equals("stock_picking")){
-                        JSONArray pickingsAssigned = new JSONArray();
+                    outerDomain.put(domain);
+                    JSONArray pickingsAssigned = new JSONArray();
+                    JSONArray pickingState = new JSONArray();
+                    if (model.equals("stock_picking")) {
                         pickingsAssigned.put("owner_id");
                         pickingsAssigned.put("=");
                         pickingsAssigned.put(uid_partner_id);
                         outerDomain.put(pickingsAssigned);
+                        pickingState.put("state");
+                        pickingState.put("=");
+                        pickingState.put("assigned");
+                        outerDomain.put(pickingState);
+                    } else if (model.equals("res_partner")) {
+                        JSONArray partnersToFetchDomain = new JSONArray();
+                        partnersToFetchDomain.put("id");
+                        partnersToFetchDomain.put("in");
+                        partnersToFetchDomain.put(partnersToFetch);
+                        outerDomain.put(partnersToFetchDomain);
                     }
-                    outerDomain.put(domain);
                     outerDomain2.put(outerDomain);
+                    JSONObject fields = new JSONObject();
+                    fields.put("fields", modelFields);
                     argsArray.put(database_name)
                             .put(uid)
                             .put(password)
                             .put(model.replace('_', '.'))
-                            .put("search")
-                            .put(outerDomain2);
+                            .put("search_read")
+                            .put(outerDomain2)
+                            .put(fields);
                     params.put("args", argsArray);
                     Log.d(TAG, params.toString());
-                    JSONArray remote_ids = client.callJSONArray("execute_kw", params);
-                    Log.d(TAG, "Record ids to fetch" + remote_ids.toString());
-
-                    JSONObject read_params = new JSONObject();
-                    read_params.put("service", "object");
-                    read_params.put("method", "execute_kw");
-                    JSONArray argsRead = new JSONArray();
-                    JSONArray outerArray = new JSONArray();
-                    outerArray.put(remote_ids);
-                    JSONObject fields = new JSONObject();
-                    fields.put("fields", modelFields);
-                    argsRead.put(database_name)
-                            .put(uid)
-                            .put(password)
-                            .put(model.replace('_', '.'))
-                            .put("read")
-                            .put(outerArray)
-                            .put(fields);
-                    read_params.put("args", argsRead);
-                    JSONArray records = client.callJSONArray("execute_kw", read_params);
-                    Log.d(TAG, "Records read: " + records.toString());
-                    for (int i = 0; i < records.length(); i++) {
-                        JSONObject record = (JSONObject) records.get(i);
-                        db.insert(model, null, getContentValues(record));// TODO error here, foreign key
-                    }
-                    // fetch all the records that have changed
-                    if (last_sync_date != null && !last_sync_date.isEmpty()) {
-                        JSONArray argsArraySearchRead = new JSONArray();
-                        JSONObject paramsSearchRead = new JSONObject();
-                        paramsSearchRead.put("service", "object");
-                        paramsSearchRead.put("method", "execute_kw");
-                        JSONArray outerDomain2SearchRead = new JSONArray();
-                        JSONArray outerDomainSearchRead = new JSONArray();
-                        JSONArray domainSearchRead = new JSONArray();
-                        domainSearchRead.put("id")
-                                .put("in")
-                                .put(local_ids);
-                        JSONArray domainSearchRead2 = new JSONArray();
-                        domainSearchRead2.put("write_date")
-                                .put(">")
-                                .put(last_sync_date);
-                        outerDomainSearchRead.put(domainSearchRead);
-                        outerDomainSearchRead.put(domainSearchRead2);
-                        outerDomain2SearchRead.put(outerDomainSearchRead);
-                        argsArraySearchRead.put(database_name)
-                                .put(uid)
-                                .put(password)
-                                .put(model.replace('_', '.'))
-                                .put("search_read")
-                                .put(outerDomain2SearchRead)
-                                .put(fields);
-                        paramsSearchRead.put("args", argsArraySearchRead);
-                        JSONArray remoteIdsSearchRead = client.callJSONArray("execute_kw", paramsSearchRead);
+                    if (last_sync_date == null) {
+                        Log.d(TAG, "Initial sync");
+                        JSONArray records = client.callJSONArray("execute_kw", params);
+                        for (int i = 0; i < records.length(); i++) {
+                            JSONObject record = (JSONObject) records.get(i);
+                            ContentValues values = getContentValues(record);
+                            if (model.equals("stock_picking")) {
+                                partnersToFetch.put(values.getAsInteger("partner_id"));
+                            }
+                            db.insert(model, null, values);
+                        }
+                    } else {
+                        Log.d(TAG, "Differential syncing.");
+                        JSONArray dateDomain = new JSONArray();
+                        dateDomain.put("write_date");
+                        dateDomain.put(">");
+                        dateDomain.put(last_sync_date);
+                        outerDomain.put(dateDomain);
+                        // remove the id not in local_ids domain, we do not need that
+                        outerDomain.remove(0);
+                        // basically replace the domain to have the date inside it as well
+                        argsArray.put(5, outerDomain);
+                        JSONArray remoteIdsSearchRead = client.callJSONArray("execute_kw", params);
                         Log.d(TAG, "Records that were updated after " + last_sync_date + "\n " + remoteIdsSearchRead.toString());
                         for (int i = 0; i < remoteIdsSearchRead.length(); i++) {
                             JSONObject record = (JSONObject) remoteIdsSearchRead.get(i);
-                            int count = db.update(model, getContentValues(record), "id = " + record.getInt("id"), null);
+                            ContentValues values = getContentValues(record);
+                            if (model.equals("stock_picking")) {
+                                partnersToFetch.put(values.getAsInteger("partner_id"));
+                            }
+                            int count = db.update(model, values, "id = " + record.getInt("id"), null);
                             Log.d(TAG, "Updating row with id " + record.get("id") + " because we last synced on "
                                     + last_sync_date + " and it has been updated." + "rows affected" + count);
                         }

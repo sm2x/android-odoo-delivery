@@ -138,11 +138,11 @@ public class SessionManager {
         argsArray.put(database_name)
                 .put(uid)
                 .put(password)
-                .put("res_partner")
+                .put("res.partner")
                 .put("search")
                 .put(outerDomain2);
         params.put("args", argsArray);
-        return (int) client.callInt("execute_kw", params);
+        return ((JSONArray) client.call("execute_kw", params)).getInt(0);
     }
 
 

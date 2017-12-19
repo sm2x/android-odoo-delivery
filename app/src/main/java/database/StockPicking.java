@@ -72,7 +72,8 @@ public class StockPicking extends SQLiteOpenHelper {
                     "FOREIGN KEY (write_uid) REFERENCES res_users(id)," +
                     "FOREIGN KEY (location_id) REFERENCES stock_location(id)," +
                     "FOREIGN KEY (picking_type_id) REFERENCES stock_picking_type(id)," +
-                    "FOREIGN KEY (partner_id) REFERENCES res_partner(id)," +
+                    // this has to go because it complicates the sync.
+                    //"FOREIGN KEY (partner_id) REFERENCES res_partner(id)," +
                     "FOREIGN KEY (company_id) REFERENCES res_company(id)," +
                     "FOREIGN KEY (owner_id) REFERENCES res_partner(id)," +
                     "FOREIGN KEY (backorder_id) REFERENCES stock_picking(id)," +
