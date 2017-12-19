@@ -36,7 +36,7 @@ public class Synchronization extends BroadcastReceiver {
             "res_partner",
     };
 
-    // TODO this should be launched by a service
+    // TODO this should be launched by a service, FIX OOM, sync in batches
     private static class TaskSync extends AsyncTask<Context, Integer, Boolean> {
 
         @Override
@@ -121,9 +121,11 @@ public class Synchronization extends BroadcastReceiver {
                             if (model.equals("stock_picking")) {
                                 partnersToFetch.put(values.getAsInteger("partner_id"));
                             }
-                            db.insert(model, null, values);
+                            Log.d(TAG, "Inserting values to table: " + model + "\n" + values);
+                            db.insertOrThrow(model, null, values);
                         }
                     } else {
+                        // TODO test the differential syncing
                         Log.d(TAG, "Differential syncing.");
                         JSONArray dateDomain = new JSONArray();
                         dateDomain.put("write_date");
@@ -150,12 +152,15 @@ public class Synchronization extends BroadcastReceiver {
                     // TODO make sure that this is in the same timezone as the server
                     sharedPreferences.edit().putString("last_sync_date", format_date(new Date())).apply();
                 }
+                db.setTransactionSuccessful();
             } catch (JSONRPCException | JSONException e) {
                 // TODO inform user,
                 e.printStackTrace();
                 return false;
             } finally {
+                Log.d(TAG, "Ending transaction");
                 db.endTransaction();
+                db.close();
             }
             return true;
         }
@@ -174,7 +179,6 @@ public class Synchronization extends BroadcastReceiver {
                 values.put(key, record.get(key).toString());
             }
         }
-        Log.d(TAG, "ContentValues for record " + values.toString());
         return values;
     }
 

@@ -75,8 +75,8 @@ public class StockPicking extends SQLiteOpenHelper {
                     // this has to go because it complicates the sync.
                     //"FOREIGN KEY (partner_id) REFERENCES res_partner(id)," +
                     "FOREIGN KEY (company_id) REFERENCES res_company(id)," +
-                    "FOREIGN KEY (owner_id) REFERENCES res_partner(id)," +
-                    "FOREIGN KEY (backorder_id) REFERENCES stock_picking(id)," +
+                    //"FOREIGN KEY (owner_id) REFERENCES res_partner(id)," +
+                    //"FOREIGN KEY (backorder_id) REFERENCES stock_picking(id)," +
                     "FOREIGN KEY (create_uid) REFERENCES res_users(id)," +
                     "FOREIGN KEY (location_dest_id) REFERENCES stock_location(id)" +
                     ")");
@@ -87,8 +87,8 @@ public class StockPicking extends SQLiteOpenHelper {
                     "(id INTEGER UNIQUE," +
                     "company_id INTEGER," +
                     "partner_id INTEGER," +
-                    "FOREIGN KEY (company_id) REFERENCES res_company(id)," +
-                    "FOREIGN KEY (partner_id) REFERENCES res_partner(id)" +
+                    "FOREIGN KEY (company_id) REFERENCES res_company(id)" +
+                    //"FOREIGN KEY (partner_id) REFERENCES res_partner(id)" +
                     ")");
             db.execSQL("CREATE TABLE res_partner " +
                     "(id INTEGER UNIQUE," +

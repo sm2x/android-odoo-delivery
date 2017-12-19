@@ -25,6 +25,7 @@
             </intent-filter>
         </activity>
         <activity android:name=".DeliveryActivity" />
+        <activity android:name=".PickingActivity" />
     </application>
 
 </manifest>

@@ -25,6 +25,7 @@ import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Arrays;
 
 import nl.triandria.odoowarehousing.R;
 
@@ -127,22 +128,23 @@ public class SessionManager {
         JSONObject params = new JSONObject();
         params.put("service", "object");
         params.put("method", "execute_kw");
-        JSONArray outerDomain2 = new JSONArray();
-        JSONArray outerDomain = new JSONArray();
-        JSONArray domain = new JSONArray();
-        domain.put("id");
-        domain.put("=");
-        domain.put(uid);
-        outerDomain.put(domain);
-        outerDomain2.put(outerDomain);
+        JSONArray modelFields = new JSONArray();
+        modelFields.put("partner_id");
+        JSONObject fields = new JSONObject();
+        fields.put("fields", modelFields);
+        JSONArray uidArray = new JSONArray();
+        uidArray.put(uid);
         argsArray.put(database_name)
                 .put(uid)
                 .put(password)
-                .put("res.partner")
-                .put("search")
-                .put(outerDomain2);
+                .put("res.users")
+                .put("read")
+                .put(uidArray)
+                .put(fields);
         params.put("args", argsArray);
-        return ((JSONArray) client.call("execute_kw", params)).getInt(0);
+        Log.d(TAG, "Getting partner_id from uid ===> " + params);
+        return (int) ((JSONArray) ((JSONObject) client.callJSONArray(
+                "execute_kw", params).get(0)).get("partner_id")).get(0);
     }
 
 

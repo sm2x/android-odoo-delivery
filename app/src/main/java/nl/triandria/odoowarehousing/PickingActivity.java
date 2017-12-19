@@ -1,5 +1,6 @@
 package nl.triandria.odoowarehousing;
 
+import android.app.Activity;
 import android.app.ListActivity;
 import android.app.ListFragment;
 import android.app.LoaderManager;
@@ -12,34 +13,36 @@ import android.net.Uri;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ListView;
 import android.widget.SearchView;
 import android.widget.SimpleCursorAdapter;
 
 import database.StockPicking;
 
 
-public class PickingActivity extends ListFragment implements SearchView.OnQueryTextListener, LoaderManager.LoaderCallbacks {
+public class PickingActivity extends Activity implements SearchView.OnQueryTextListener, LoaderManager.LoaderCallbacks {
 
-    private static final int LOAD_LIMIT = 50;
+    private static final String TAG = "PickingActivity";
     SimpleCursorAdapter adapter;
 
     @Override
-    public void onActivityCreated(Bundle savedInstanceState) {
-        super.onActivityCreated(savedInstanceState);
-        setEmptyText("No pickings.");
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_picking);
         adapter = new SimpleCursorAdapter(
-                getActivity(),
+                this,
                 R.layout.activity_picking_line,
                 null,
-                new String[]{"name", "customer_name", "street1"},
-                new int[]{R.id.textview_picking_name, R.id.textview_picking_customer_name, R.id.textview_picking_street1},
+                new String[]{"name", "state"},
+                new int[]{R.id.textview_picking_name, R.id.textview_picking_state},
                 0);
-        setListAdapter(adapter);
+        ListView listView = findViewById(R.id.activity_picking_layout);
+        listView.setAdapter(adapter);
         Bundle args = new Bundle();
-        args.putInt("load_limit", LOAD_LIMIT);
         getLoaderManager().initLoader(0, args, this);
     }
 
@@ -59,14 +62,8 @@ public class PickingActivity extends ListFragment implements SearchView.OnQueryT
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        inflater.inflate(R.layout.activity_picking, container);
-        return super.onCreateView(inflater, container, savedInstanceState);
-    }
-
-    @Override
     public Loader onCreateLoader(int id, Bundle args) {
-        return new CustomCursorLoader(getActivity());
+        return new CustomCursorLoader(this);
     }
 
     @Override
@@ -89,15 +86,15 @@ public class PickingActivity extends ListFragment implements SearchView.OnQueryT
 
         @Override
         public Cursor loadInBackground() {
-            // TODO does this load everything? make sure that sort order can be defined by the user
-            // make sure that only 50 are loaded and make sure you have an index to load
-            final String select_stmt = "SELECT stock_picking.name, res_partner.name, res_partner.id FROM " +
-                    " stock_picking INNER JOIN res_partner ON stock_picking.partner_id = res_partner.id" + getSortOrder();
-            if (!this.isStarted()) {
+            Log.d(TAG, "LoadinBackground " + this.isStarted());
+            // TODO test how does this play, load a huge database
+            final String select_stmt = "SELECT rowid _id, name, state FROM stock_picking";
+            if (this.isStarted()) {
                 SQLiteDatabase db = SQLiteDatabase.openDatabase(
                         this.getContext().getDatabasePath(StockPicking.DATABASE_NAME).getAbsolutePath(),
                         null,
                         SQLiteDatabase.OPEN_READONLY);
+                Log.d(TAG, select_stmt);
                 return db.rawQuery(select_stmt, null);
             }
             return null;
