@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/row_delivery_layout"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+
+    <TextView
+        android:id="@+id/row_delivery_layout_partner_id"
+        android:layout_width="match_parent"
+        android:textSize="30sp"
+        android:layout_height="wrap_content" />
+
+    <TextView
+        android:layout_below="@+id/row_delivery_layout_partner_id"
+        android:id="@+id/row_delivery_layout_state"
+        android:layout_width="match_parent"
+        android:textSize="20sp"
+        android:layout_height="wrap_content" />
+
+</RelativeLayout>
