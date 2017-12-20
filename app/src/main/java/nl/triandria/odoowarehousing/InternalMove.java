@@ -17,15 +17,15 @@ import android.widget.SimpleCursorAdapter;
 import database.StockPicking;
 
 
-public class PickingActivity extends Activity implements SearchView.OnQueryTextListener, LoaderManager.LoaderCallbacks {
+public class InternalMove extends Activity implements SearchView.OnQueryTextListener, LoaderManager.LoaderCallbacks {
 
-    private static final String TAG = "PickingActivity";
+    private static final String TAG = "InternalMoveActivity";
     SimpleCursorAdapter adapter;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_picking);
+        setContentView(R.layout.activity_internal_move);
         adapter = new SimpleCursorAdapter(
                 this,
                 R.layout.activity_picking_line,
@@ -33,7 +33,7 @@ public class PickingActivity extends Activity implements SearchView.OnQueryTextL
                 new String[]{"name", "state"},
                 new int[]{R.id.textview_picking_name, R.id.textview_picking_state},
                 0);
-        ListView listView = findViewById(R.id.activity_picking_layout);
+        ListView listView = findViewById(R.id.activity_internal_move_layout);
         listView.setAdapter(adapter);
         Bundle args = new Bundle();
         getLoaderManager().initLoader(0, args, this);
@@ -83,7 +83,7 @@ public class PickingActivity extends Activity implements SearchView.OnQueryTextL
             final String select_stmt = "SELECT stock_picking.rowid _id, stock_picking.name, state " +
                     "FROM stock_picking INNER JOIN stock_picking_type " +
                     "ON stock_picking.picking_type_id = stock_picking_type.id " +
-                    "WHERE stock_picking_type.code = 'incoming';";
+                    "WHERE stock_picking_type.code = 'internal';";
             if (this.isStarted()) {
                 SQLiteDatabase db = SQLiteDatabase.openDatabase(
                         this.getContext().getDatabasePath(StockPicking.DATABASE_NAME).getAbsolutePath(),

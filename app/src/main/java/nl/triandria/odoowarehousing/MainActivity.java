@@ -52,6 +52,13 @@ public class MainActivity extends AppCompatActivity {
                 startActivity(new Intent(v.getContext(), DeliveryActivity.class));
             }
         });
+        Button buttonInternalMoves = (Button) findViewById(R.id.button_internal_move);
+        buttonInternalMoves.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startActivity(new Intent(v.getContext(), InternalMove.class));
+            }
+        });
         boolean isLoggedIn = SessionManager.isLoggedIn(this);
 
         if (!isLoggedIn) {

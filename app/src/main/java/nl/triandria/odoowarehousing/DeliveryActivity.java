@@ -1,58 +1,98 @@
 package nl.triandria.odoowarehousing;
 
-import android.app.ListActivity;
+import android.app.Activity;
+import android.app.LoaderManager;
 import android.content.Context;
+import android.content.CursorLoader;
+import android.content.Loader;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.CursorAdapter;
-import android.widget.ListAdapter;
-import android.widget.TextView;
+import android.text.TextUtils;
+import android.util.Log;
+import android.widget.ListView;
+import android.widget.SearchView;
+import android.widget.SimpleCursorAdapter;
 
 import database.StockPicking;
 
-public class DeliveryActivity extends ListActivity {
+
+public class DeliveryActivity extends Activity implements SearchView.OnQueryTextListener, LoaderManager.LoaderCallbacks {
+
+    private static final String TAG = "DeliveryActivity";
+    SimpleCursorAdapter adapter;
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_delivery);
-        SQLiteDatabase db = new StockPicking(this).getReadableDatabase();
-        Cursor cursor = db.query("stock_picking", new String[]{"partner_name", "state"},
-                null, null, null, null, null);
-        ListAdapter adapter = new CustomCursorAdapter(this, cursor, CustomCursorAdapter.FLAG_REGISTER_CONTENT_OBSERVER);
-        setListAdapter(adapter);
-        cursor.close();
+        adapter = new SimpleCursorAdapter(
+                this,
+                R.layout.activity_picking_line,
+                null,
+                new String[]{"name", "state"},
+                new int[]{R.id.textview_picking_name, R.id.textview_picking_state},
+                0);
+        ListView listView = findViewById(R.id.activity_delivery_layout);
+        listView.setAdapter(adapter);
+        Bundle args = new Bundle();
+        getLoaderManager().initLoader(0, args, this);
     }
 
-    // TODO should accept an empty adapter.
-    // As for the data loading, in all the times I want to show all the rows that can fill in the
-    // screen plus 20 more
-    class CustomCursorAdapter extends CursorAdapter {
+    @Override
+    public boolean onQueryTextSubmit(String query) {
+        // TODO search from database, if not found search remove and bring it local
+        if (!TextUtils.isEmpty(query) && query.length() > 5) {
+            adapter.getFilter().filter(query);
+            return true;
+        }
+        return false;
+    }
 
-        CustomCursorAdapter(Context context, Cursor c, int flags) {
-            super(context, c, flags);
+    @Override
+    public boolean onQueryTextChange(String newText) {
+        return false;
+    }
+
+    @Override
+    public Loader onCreateLoader(int id, Bundle args) {
+        return new CustomCursorLoader(this);
+    }
+
+    @Override
+    public void onLoadFinished(Loader loader, Object data) {
+        adapter.swapCursor((Cursor) data);
+    }
+
+    @Override
+    public void onLoaderReset(Loader loader) {
+        adapter.swapCursor(null);
+    }
+
+
+
+    static class CustomCursorLoader extends CursorLoader {
+
+        private CustomCursorLoader(Context context) {
+            super(context);
         }
 
         @Override
-        public View newView(Context context, Cursor cursor, ViewGroup parent) {
-            return findViewById(R.id.row_delivery_layout);
-        }
-
-        @Override
-        public View getView(int position, View convertView, ViewGroup parent) {
-            //TODO if convertView == null, call newView. basically if you just call super here I think you are good
-            return super.getView(position, convertView, parent);
-        }
-
-        @Override
-        public void bindView(View view, Context context, Cursor cursor) {
-            TextView partner_name = view.findViewById(R.id.row_delivery_layout_partner_id);
-            TextView state = view.findViewById(R.id.row_delivery_layout_state);
-            partner_name.setText(cursor.getString(0));
-            state.setText(cursor.getString(1));
+        public Cursor loadInBackground() {
+            Log.d(TAG, "LoadinBackground " + this.isStarted());
+            final String select_stmt = "SELECT stock_picking.rowid _id, stock_picking.name, state " +
+                    "FROM stock_picking INNER JOIN stock_picking_type " +
+                    "ON stock_picking.picking_type_id = stock_picking_type.id " +
+                    "WHERE stock_picking_type.code = 'outgoing';";
+            if (this.isStarted()) {
+                SQLiteDatabase db = SQLiteDatabase.openDatabase(
+                        this.getContext().getDatabasePath(StockPicking.DATABASE_NAME).getAbsolutePath(),
+                        null,
+                        SQLiteDatabase.OPEN_READONLY);
+                Log.d(TAG, select_stmt);
+                return db.rawQuery(select_stmt, null);
+            }
+            return null;
         }
     }
 }

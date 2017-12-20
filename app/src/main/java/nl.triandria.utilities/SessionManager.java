@@ -25,7 +25,6 @@ import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.Arrays;
 
 import nl.triandria.odoowarehousing.R;
 
@@ -143,8 +142,8 @@ public class SessionManager {
                 .put(fields);
         params.put("args", argsArray);
         Log.d(TAG, "Getting partner_id from uid ===> " + params);
-        return (int) ((JSONArray) ((JSONObject) client.callJSONArray(
-                "execute_kw", params).get(0)).get("partner_id")).get(0);
+        return client.callJSONObject(
+                "execute_kw", params).getJSONArray("partner_id").getInt(0);
     }
 
 
@@ -158,7 +157,7 @@ public class SessionManager {
 
         @Override
         protected ArrayList<String> doInBackground(URI... urls) {
-
+            Log.d(TAG, "Getting database list from the server.");
             JSONRPCHttpClient client = new JSONRPCHttpClient(urls[0] + "/jsonrpc");
             ArrayList<String> databases = new ArrayList<>();
             JSONObject params = new JSONObject();
@@ -181,9 +180,14 @@ public class SessionManager {
         @Override
         protected void onPostExecute(ArrayList<String> databases) {
             super.onPostExecute(databases);
-            ArrayAdapter databaseAdapter = new ArrayAdapter<>(
-                    weakReference.get().getActivity(), android.R.layout.simple_list_item_1, databases);
-            ((Spinner) weakReference.get().getDialog().findViewById(R.id.database)).setAdapter(databaseAdapter);
+            if (!databases.isEmpty()) {
+                ArrayAdapter databaseAdapter = new ArrayAdapter<>(
+                        weakReference.get().getActivity(), android.R.layout.simple_list_item_1, databases);
+                ((Spinner) weakReference.get().getDialog().findViewById(R.id.database)).setAdapter(databaseAdapter);
+            } else {
+                Toast.makeText(weakReference.get().getActivity(),
+                        R.string.error_login_failed_generic_error, Toast.LENGTH_LONG).show();
+            }
         }
     }
 }
