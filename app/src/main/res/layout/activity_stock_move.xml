@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    tools:context="nl.triandria.odoowarehousing.StockMove">
+
+
+    <TextView
+        android:id="@+id/textview_product"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/product" />
+
+    <LinearLayout
+        android:id="@+id/layout_product_scan_select"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:weightSum="4">
+
+        <Button
+            android:id="@+id/scan_product"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="3"
+            android:text="@string/scan" />
+
+        <Button
+            android:id="@+id/select_product"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="@string/select" />
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/textview_stock_move_product"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textSize="25sp" />
+
+    <TextView
+        android:id="@+id/textview_from_location"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/location_from" />
+
+    <LinearLayout
+        android:id="@+id/layout_location_from_scan_select"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:weightSum="4">
+
+        <Button
+            android:id="@+id/scan_from_location"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="3"
+            android:text="@string/scan" />
+
+
+        <Button
+            android:id="@+id/select_from_location"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="@string/select" />
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/textview_stock_move_location_from"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textSize="25sp" />
+
+    <TextView
+        android:id="@+id/textview_to_location"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/location_to" />
+
+    <LinearLayout
+        android:id="@+id/layout_location_to_scan_select"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:weightSum="4">
+
+        <Button
+            android:id="@+id/scan_to_location"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="3"
+            android:text="@string/scan" />
+
+        <Button
+            android:id="@+id/select_to_location"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="@string/select" />
+
+    </LinearLayout>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:labelFor="@id/quantity"
+        android:text="@string/quantity" />
+
+    <EditText
+        android:id="@+id/quantity"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:inputType="numberDecimal" />
+
+    <Button
+        android:id="@+id/button_stock_move_ok"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@android:string/ok" />
+
+</LinearLayout>

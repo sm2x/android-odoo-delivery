@@ -19,5 +19,15 @@
     <string name="error_malformed_url">Wrong URL</string>
     <string name="internal">Internal</string>
     <string name="packs">Packs</string>
-    <string name="inventory">Inventory</string>
+    <string name="inventory_adjust">Inventory Adjust</string>
+    <string name="stock_move">Stock Move</string>
+    <string name="inventory_move">Inventory Move</string>
+    <string name="scan">Scan</string>
+    <string name="select">Select</string>
+    <string name="quantity">Quantity</string>
+    <string name="product">Product</string>
+    <string name="location_from">Location FROM</string>
+    <string name="location_to">Location TO</string>
+    <string name="location">Location</string>
+    <string name="add_to_inventory">Add to inventory</string>
 </resources>

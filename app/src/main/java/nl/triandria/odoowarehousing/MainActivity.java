@@ -59,6 +59,27 @@ public class MainActivity extends AppCompatActivity {
                 startActivity(new Intent(v.getContext(), InternalMove.class));
             }
         });
+        Button buttonStockMove = (Button) findViewById(R.id.button_stock_move);
+        buttonStockMove.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startActivity(new Intent(v.getContext(), StockMove.class));
+            }
+        });
+        Button buttonInventoryMove = (Button) findViewById(R.id.button_inventory_move);
+        buttonInventoryMove.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startActivity(new Intent(v.getContext(), InventoryMove.class));
+            }
+        });
+        Button buttonInventoryAdjust = (Button) findViewById(R.id.button_inventory_adjust);
+        buttonInventoryAdjust.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startActivity(new Intent(v.getContext(), InventoryAdjust.class));
+            }
+        });
         boolean isLoggedIn = SessionManager.isLoggedIn(this);
 
         if (!isLoggedIn) {

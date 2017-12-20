@@ -4,6 +4,7 @@
     android:layout_width="fill_parent"
     android:layout_height="fill_parent">
 
+    <!--TODO fix this, also make sure that their width and heights are capped and the text is wrapped-->
     <GridLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -36,20 +37,29 @@
             android:text="@string/internal" />
 
         <Button
-            android:id="@+id/button_packs"
-            style="?android:attr/buttonBarButtonStyle"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:padding="50dp"
-            android:text="@string/packs" />
-
-
-        <Button
             android:id="@+id/button_inventory_adjust"
             style="?android:attr/buttonBarButtonStyle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:padding="50dp"
-            android:text="@string/inventory" />
+            android:text="@string/inventory_adjust" />
+
+        <Button
+            android:id="@+id/button_stock_move"
+            style="?android:attr/buttonBarButtonStyle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:padding="50dp"
+            android:text="@string/stock_move" />
+
+        <Button
+            android:id="@+id/button_inventory_move"
+            style="?android:attr/buttonBarButtonStyle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:padding="50dp"
+            android:text="@string/inventory_move" />
+
+
     </GridLayout>
 </RelativeLayout>
