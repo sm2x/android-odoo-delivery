@@ -1,65 +1,85 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/layout_main_activity"
-    android:layout_width="fill_parent"
-    android:layout_height="fill_parent">
 
-    <!--TODO fix this, also make sure that their width and heights are capped and the text is wrapped-->
-    <GridLayout
-        android:layout_width="wrap_content"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/layout_main_activity"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical">
+
+    <LinearLayout
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_centerHorizontal="true"
-        android:layout_marginTop="70dp"
-        android:columnCount="2">
+        android:weightSum="2"
+        android:orientation="horizontal">
 
         <Button
             android:id="@+id/button_deliver"
             style="?android:attr/buttonBarButtonStyle"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
             android:padding="50dp"
+            android:layout_weight="1"
             android:text="@string/button_deliver" />
 
         <Button
             android:id="@+id/button_pickup"
             style="?android:attr/buttonBarButtonStyle"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
             android:padding="50dp"
+            android:layout_weight="1"
             android:text="@string/button_pickup" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:weightSum="2">
 
         <Button
             android:id="@+id/button_internal_move"
             style="?android:attr/buttonBarButtonStyle"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
             android:padding="50dp"
+            android:layout_weight="1"
             android:text="@string/internal" />
 
         <Button
             android:id="@+id/button_inventory_adjust"
             style="?android:attr/buttonBarButtonStyle"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
             android:padding="50dp"
+            android:layout_weight="1"
             android:text="@string/inventory_adjust" />
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:weightSum="2">
 
         <Button
             android:id="@+id/button_stock_move"
             style="?android:attr/buttonBarButtonStyle"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
             android:padding="50dp"
+            android:layout_weight="1"
             android:text="@string/stock_move" />
 
         <Button
             android:id="@+id/button_inventory_move"
             style="?android:attr/buttonBarButtonStyle"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
             android:padding="50dp"
+            android:layout_weight="1"
             android:text="@string/inventory_move" />
+    </LinearLayout>
 
-
-    </GridLayout>
-</RelativeLayout>
+</LinearLayout>
