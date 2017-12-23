@@ -2,7 +2,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="nl.triandria.odoowarehousing">
 
-    <!-- To auto-complete the email text field in the login form with the user's emails -->
+    <!-- TODO why are these here? remove all except internet -->
     <uses-permission android:name="android.permission.GET_ACCOUNTS" />
     <uses-permission android:name="android.permission.READ_PROFILE" />
     <uses-permission android:name="android.permission.READ_CONTACTS" />
@@ -30,7 +30,10 @@
         <activity android:name=".InternalMove" />
         <activity android:name=".StockMove" />
         <activity android:name=".InventoryMove" />
-        <activity android:name=".InventoryAdjust"></activity>
+        <activity android:name=".InventoryAdjust" />
+        <activity
+            android:name=".SettingsActivity"
+            android:label="@string/title_activity_settings"></activity>
     </application>
 
 </manifest>

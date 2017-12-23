@@ -1,5 +1,6 @@
 package nl.triandria.utilities;
 
+import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.DialogFragment;
 import android.content.Context;
@@ -8,7 +9,6 @@ import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
-import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.ProgressBar;
 import android.widget.Spinner;
@@ -37,23 +37,26 @@ public class SessionManager {
     public static class LogInTask extends AsyncTask<Object, Integer, String> {
 
         WeakReference<Dialog> dialog;
+        AlertDialog progressBarDialog;
 
         public LogInTask(Dialog dialog) {
-            this.dialog = new WeakReference<Dialog>(dialog);
+            this.dialog = new WeakReference<>(dialog);
+            ProgressBar progressBar = new ProgressBar(this.dialog.get().getContext());
+            progressBar.setIndeterminate(true);
+            AlertDialog.Builder builder = new AlertDialog.Builder(this.dialog.get().getContext());
+            builder.setView(progressBar);
+            progressBarDialog = builder.create();
         }
 
         @Override
         protected void onPreExecute() {
-            ProgressBar progressBar = this.dialog.get().findViewById(R.id.indeterminateBar);
-            progressBar.setIndeterminate(true);
-            progressBar.setVisibility(View.VISIBLE);
+            progressBarDialog.show();
             super.onPreExecute();
         }
 
         @Override
         protected void onPostExecute(String err_message) {
-            ProgressBar progressBar = this.dialog.get().findViewById(R.id.indeterminateBar);
-            progressBar.setVisibility(View.GONE);
+            progressBarDialog.dismiss();
             if (err_message != null) {
                 Toast.makeText(this.dialog.get().getContext(), err_message, Toast.LENGTH_LONG).show();
             } else {

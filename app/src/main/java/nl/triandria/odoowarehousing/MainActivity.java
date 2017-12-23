@@ -1,5 +1,6 @@
 package nl.triandria.odoowarehousing;
 
+import android.app.AlertDialog;
 import android.app.DialogFragment;
 import android.content.Intent;
 import android.content.IntentFilter;
@@ -7,8 +8,10 @@ import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
@@ -38,42 +41,44 @@ public class MainActivity extends AppCompatActivity {
         Synchronization syncReceiver = new Synchronization();
         LocalBroadcastManager.getInstance(this).registerReceiver(syncReceiver, new IntentFilter("synchronize"));
         setContentView(R.layout.activity_main);
-        Button buttonDeliver = (Button) findViewById(R.id.button_deliver);
+        Toolbar toolbar = findViewById(R.id.toolbar_main_activity);
+        setSupportActionBar(toolbar);
+        Button buttonDeliver =  findViewById(R.id.button_deliver);
         buttonDeliver.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                startActivity(new Intent(v.getContext(), PickingActivity.class));
-            }
-        });
-        Button buttonPickup = (Button) findViewById(R.id.button_pickup);
-        buttonPickup.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 startActivity(new Intent(v.getContext(), DeliveryActivity.class));
             }
         });
-        Button buttonInternalMoves = (Button) findViewById(R.id.button_internal_move);
+        Button buttonPickup =  findViewById(R.id.button_pickup);
+        buttonPickup.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startActivity(new Intent(v.getContext(), PickingActivity.class));
+            }
+        });
+        Button buttonInternalMoves =  findViewById(R.id.button_internal_move);
         buttonInternalMoves.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 startActivity(new Intent(v.getContext(), InternalMove.class));
             }
         });
-        Button buttonStockMove = (Button) findViewById(R.id.button_stock_move);
+        Button buttonStockMove =  findViewById(R.id.button_stock_move);
         buttonStockMove.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 startActivity(new Intent(v.getContext(), StockMove.class));
             }
         });
-        Button buttonInventoryMove = (Button) findViewById(R.id.button_inventory_move);
+        Button buttonInventoryMove =  findViewById(R.id.button_inventory_move);
         buttonInventoryMove.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 startActivity(new Intent(v.getContext(), InventoryMove.class));
             }
         });
-        Button buttonInventoryAdjust = (Button) findViewById(R.id.button_inventory_adjust);
+        Button buttonInventoryAdjust =  findViewById(R.id.button_inventory_adjust);
         buttonInventoryAdjust.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -157,9 +162,9 @@ public class MainActivity extends AppCompatActivity {
         }
 
         private boolean validateLoginFragmentValues(HashMap<String, String> values) {
-            for (String key : values.keySet()){
+            for (String key : values.keySet()) {
                 String value = values.get(key);
-                if (value == null || value.trim().isEmpty()){
+                if (value == null || value.trim().isEmpty()) {
                     return false;
                 }
             }
@@ -196,7 +201,20 @@ public class MainActivity extends AppCompatActivity {
             return urlBuilder.toString();
         }
 
-
     }
+        @Override
+        public boolean onOptionsItemSelected(MenuItem item) {
+            switch (item.getItemId()) {
+                case R.id.toolbar_action_licence:
+                    AlertDialog.Builder builder = new AlertDialog.Builder(this);
+                    builder.setView(R.id.dialog_licence);
+                    builder.show();
+                case R.id.toolbar_action_settings:
+                    startActivity(new Intent(this, SettingsActivity.class));
+                default:
+                    return super.onOptionsItemSelected(item);
+            }
+        }
+
 
 }

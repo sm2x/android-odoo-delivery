@@ -1,15 +1,21 @@
 package nl.triandria.odoowarehousing;
 
-import android.app.Activity;
+import android.app.AlertDialog;
 import android.app.LoaderManager;
 import android.content.Context;
 import android.content.CursorLoader;
+import android.content.Intent;
 import android.content.Loader;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.widget.ListView;
 import android.widget.SearchView;
 import android.widget.SimpleCursorAdapter;
@@ -17,7 +23,7 @@ import android.widget.SimpleCursorAdapter;
 import database.StockPicking;
 
 
-public class DeliveryActivity extends Activity implements SearchView.OnQueryTextListener, LoaderManager.LoaderCallbacks {
+public class DeliveryActivity extends AppCompatActivity implements SearchView.OnQueryTextListener, LoaderManager.LoaderCallbacks {
 
     private static final String TAG = "DeliveryActivity";
     SimpleCursorAdapter adapter;
@@ -26,12 +32,14 @@ public class DeliveryActivity extends Activity implements SearchView.OnQueryText
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_delivery);
+        Toolbar toolbar = findViewById(R.id.toolbar_activity_delivery);
+        setSupportActionBar(toolbar);
         adapter = new SimpleCursorAdapter(
                 this,
                 R.layout.activity_picking_line,
                 null,
-                new String[]{"name", "state"},
-                new int[]{R.id.textview_picking_name, R.id.textview_picking_state},
+                new String[]{"name", "partner_id_name", "street"},
+                new int[]{R.id.textview_picking_name, R.id.textview_picking_partner, R.id.textview_picking_partner_address},
                 0);
         ListView listView = findViewById(R.id.activity_delivery_layout);
         listView.setAdapter(adapter);
@@ -70,7 +78,6 @@ public class DeliveryActivity extends Activity implements SearchView.OnQueryText
     }
 
 
-
     static class CustomCursorLoader extends CursorLoader {
 
         private CustomCursorLoader(Context context) {
@@ -80,9 +87,15 @@ public class DeliveryActivity extends Activity implements SearchView.OnQueryText
         @Override
         public Cursor loadInBackground() {
             Log.d(TAG, "LoadinBackground " + this.isStarted());
-            final String select_stmt = "SELECT stock_picking.rowid _id, stock_picking.name, state " +
-                    "FROM stock_picking INNER JOIN stock_picking_type " +
-                    "ON stock_picking.picking_type_id = stock_picking_type.id " +
+            final String select_stmt = "SELECT " +
+                    "stock_picking.rowid _id, " +
+                    "stock_picking.name, " +
+                    "res_partner.name as partner_id_name, " +
+                    "res_partner.name, " +
+                    "res_partner.street " +
+                    "FROM stock_picking " +
+                    "INNER JOIN stock_picking_type ON stock_picking.picking_type_id = stock_picking_type.id " +
+                    "INNER join res_partner on res_partner.id = stock_picking.partner_id " +
                     "WHERE stock_picking_type.code = 'outgoing';";
             if (this.isStarted()) {
                 SQLiteDatabase db = SQLiteDatabase.openDatabase(
@@ -94,5 +107,26 @@ public class DeliveryActivity extends Activity implements SearchView.OnQueryText
             }
             return null;
         }
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.toolbar_action_licence:
+                AlertDialog.Builder builder = new AlertDialog.Builder(this);
+                builder.setView(R.id.dialog_licence);
+                builder.show();
+            case R.id.toolbar_action_settings:
+                startActivity(new Intent(this, SettingsActivity.class));
+            default:
+                return super.onOptionsItemSelected(item);
+        }
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.menu, menu);
+        return true;
     }
 }

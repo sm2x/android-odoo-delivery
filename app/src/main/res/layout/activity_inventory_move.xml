@@ -3,8 +3,18 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="vertical"
-    tools:context="nl.triandria.odoowarehousing.StockMove">
+    tools:context="nl.triandria.odoowarehousing.InventoryMove">
+
+    <android.support.v7.widget.Toolbar
+        android:id="@+id/toolbar_activity_inventory_move"
+        android:layout_width="match_parent"
+        android:layout_height="?attr/actionBarSize"
+        android:background="?attr/colorPrimary"
+        android:elevation="4dp"
+        android:theme="@style/ThemeOverlay.AppCompat.ActionBar"
+        app:popupTheme="@style/ThemeOverlay.AppCompat.Light"/>
 
     <TextView
         android:id="@+id/textview_product"
@@ -20,14 +30,14 @@
         android:weightSum="4">
 
         <Button
-            android:id="@+id/scan_product"
+            android:id="@+id/button_scan_product_inventory_move"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_weight="3"
             android:text="@string/scan" />
 
         <Button
-            android:id="@+id/select_product"
+            android:id="@+id/button_select_product_inventory_move"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_weight="1"
@@ -54,7 +64,7 @@
         android:weightSum="4">
 
         <Button
-            android:id="@+id/scan_from_location"
+            android:id="@+id/button_scan_from_location_inventory_move"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_weight="3"
@@ -62,7 +72,7 @@
 
 
         <Button
-            android:id="@+id/select_from_location"
+            android:id="@+id/button_select_from_location_inventory_move"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_weight="1"
@@ -70,7 +80,7 @@
     </LinearLayout>
 
     <TextView
-        android:id="@+id/textview_stock_move_location_from"
+        android:id="@+id/textview_inventory_move_location_from"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:textSize="25sp" />
@@ -89,7 +99,7 @@
         android:inputType="numberDecimal" />
 
     <Button
-        android:id="@+id/button_stock_move_ok"
+        android:id="@+id/button_inventory_move_ok"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/add_to_inventory" />

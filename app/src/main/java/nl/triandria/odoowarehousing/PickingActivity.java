@@ -1,6 +1,5 @@
 package nl.triandria.odoowarehousing;
 
-import android.app.Activity;
 import android.app.LoaderManager;
 import android.content.Context;
 import android.content.CursorLoader;
@@ -8,6 +7,8 @@ import android.content.Loader;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
 import android.util.Log;
 import android.widget.ListView;
@@ -17,7 +18,7 @@ import android.widget.SimpleCursorAdapter;
 import database.StockPicking;
 
 
-public class PickingActivity extends Activity implements SearchView.OnQueryTextListener, LoaderManager.LoaderCallbacks {
+public class PickingActivity extends AppCompatActivity implements SearchView.OnQueryTextListener, LoaderManager.LoaderCallbacks {
 
     private static final String TAG = "PickingActivity";
     SimpleCursorAdapter adapter;
@@ -30,11 +31,13 @@ public class PickingActivity extends Activity implements SearchView.OnQueryTextL
                 this,
                 R.layout.activity_picking_line,
                 null,
-                new String[]{"name", "state"},
-                new int[]{R.id.textview_picking_name, R.id.textview_picking_state},
+                new String[]{"name", "partner_id_name", "street"},
+                new int[]{R.id.textview_picking_name, R.id.textview_picking_partner, R.id.textview_picking_partner_address},
                 0);
         ListView listView = findViewById(R.id.activity_picking_layout);
         listView.setAdapter(adapter);
+        Toolbar toolbar = findViewById(R.id.toolbar_activity_picking);
+        setSupportActionBar(toolbar);
         Bundle args = new Bundle();
         getLoaderManager().initLoader(0, args, this);
     }
@@ -80,9 +83,14 @@ public class PickingActivity extends Activity implements SearchView.OnQueryTextL
         @Override
         public Cursor loadInBackground() {
             Log.d(TAG, "LoadinBackground " + this.isStarted());
-            final String select_stmt = "SELECT stock_picking.rowid _id, stock_picking.name, state " +
+            final String select_stmt = "SELECT " +
+                    "stock_picking.rowid _id, " +
+                    "stock_picking.name, " +
+                    "res_partner.name as partner_id_name, " +
+                    "res_partner.street " +
                     "FROM stock_picking INNER JOIN stock_picking_type " +
                     "ON stock_picking.picking_type_id = stock_picking_type.id " +
+                    "INNER join res_partner on res_partner.id = stock_picking.partner_id " +
                     "WHERE stock_picking_type.code = 'incoming';";
             if (this.isStarted()) {
                 SQLiteDatabase db = SQLiteDatabase.openDatabase(
