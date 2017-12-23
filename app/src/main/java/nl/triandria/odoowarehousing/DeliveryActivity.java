@@ -7,6 +7,7 @@ import android.content.CursorLoader;
 import android.content.Intent;
 import android.content.Loader;
 import android.database.Cursor;
+import android.database.sqlite.SQLiteCursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
@@ -16,6 +17,8 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.SearchView;
 import android.widget.SimpleCursorAdapter;
@@ -42,6 +45,7 @@ public class DeliveryActivity extends AppCompatActivity implements SearchView.On
                 new int[]{R.id.textview_picking_name, R.id.textview_picking_partner, R.id.textview_picking_partner_address},
                 0);
         ListView listView = findViewById(R.id.activity_delivery_layout);
+        listView.setOnItemClickListener(new ListViewOnItemClickListener());
         listView.setAdapter(adapter);
         Bundle args = new Bundle();
         getLoaderManager().initLoader(0, args, this);
@@ -91,7 +95,6 @@ public class DeliveryActivity extends AppCompatActivity implements SearchView.On
                     "stock_picking.rowid _id, " +
                     "stock_picking.name, " +
                     "res_partner.name as partner_id_name, " +
-                    "res_partner.name, " +
                     "res_partner.street " +
                     "FROM stock_picking " +
                     "INNER JOIN stock_picking_type ON stock_picking.picking_type_id = stock_picking_type.id " +
@@ -128,5 +131,19 @@ public class DeliveryActivity extends AppCompatActivity implements SearchView.On
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.menu, menu);
         return true;
+    }
+
+    // TODO see if I can generalize this, a common listener for all the pickings (yes you can)
+    private class ListViewOnItemClickListener implements AdapterView.OnItemClickListener {
+
+        @Override
+        public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+            Log.d(TAG, "onItemClick" + parent.getItemAtPosition(position).toString());
+            SQLiteCursor cr = (SQLiteCursor) parent.getItemAtPosition(position);
+            int _id = cr.getInt(cr.getColumnIndex("_id"));
+            Intent intent = new Intent(parent.getContext(), FormStockPickingActivity.class);
+            intent.putExtra("_id", _id);
+            startActivity(intent);
+        }
     }
 }
