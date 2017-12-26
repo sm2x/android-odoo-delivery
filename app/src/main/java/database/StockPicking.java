@@ -33,6 +33,7 @@ public class StockPicking extends SQLiteOpenHelper {
                 "location_id", "priority", "picking_type_id", "partner_id", "move_type", "company_id",
                 "note", "state", "owner_id", "backorder_id", "create_uid", "min_date", "write_date",
                 "date", "name", "create_date", "location_dest_id", "max_date")));
+        // TODO fetch moves,
     }
 
     @Override
@@ -47,7 +48,8 @@ public class StockPicking extends SQLiteOpenHelper {
         db.beginTransaction();
         try {
             db.execSQL("CREATE TABLE stock_picking " +
-                    "(id INTEGER UNIQUE," +
+                    "(" +
+                    "id INTEGER UNIQUE," +
                     "origin TEXT, " +
                     "date_done INTEGER, " +
                     "write_uid INTEGER," +
@@ -81,17 +83,21 @@ public class StockPicking extends SQLiteOpenHelper {
                     "FOREIGN KEY (location_dest_id) REFERENCES stock_location(id)" +
                     ")");
             db.execSQL("CREATE TABLE res_company " +
-                    "(id INTEGER UNIQUE," +
-                    "name TEXT NOT NULL)");
+                    "(" +
+                    "id INTEGER UNIQUE," +
+                    "name TEXT NOT NULL" +
+                    ")");
             db.execSQL("CREATE TABLE res_users" +
-                    "(id INTEGER UNIQUE," +
+                    "(" +
+                    "id INTEGER UNIQUE," +
                     "company_id INTEGER," +
                     "partner_id INTEGER," +
                     "FOREIGN KEY (company_id) REFERENCES res_company(id)" +
                     //"FOREIGN KEY (partner_id) REFERENCES res_partner(id)" +
                     ")");
             db.execSQL("CREATE TABLE res_partner " +
-                    "(id INTEGER UNIQUE," +
+                    "(" +
+                    "id INTEGER UNIQUE," +
                     "name TEXT," +
                     "company_id INTEGER," +
                     "comment TEXT," +
@@ -104,16 +110,38 @@ public class StockPicking extends SQLiteOpenHelper {
                     "barcode TEXT" +
                     ")");
             db.execSQL("CREATE TABLE stock_location " +
-                    "(id INTEGER UNIQUE," +
+                    "(" +
+                    "id INTEGER UNIQUE," +
                     "comment TEXT," +
                     "complete_name TEXT," +
                     "barcode TEXT," +
                     "name TEXT NOT NULL" +
                     ")");
             db.execSQL("CREATE TABLE stock_picking_type " +
-                    "(id INTEGER UNIQUE," +
+                    "(" +
+                    "id INTEGER UNIQUE," +
                     "code TEXT NOT NULL," +
                     "name TEXT NOT NULL" +
+                    ")");
+            db.execSQL("CREATE TABLE stock_move " +
+                    "(" +
+                    "id INTEGER UNIQUE," +
+                    "product_id INTEGER," +
+                    "product_uom_qty FLOAT" +
+                    ")");
+            db.execSQL("CREATE TABLE product_template " +
+                    "(" +
+                    "id INTEGER UNIQUE," +
+                    "ean13 TEXT," +
+                    "name TEXT" +
+                    ")");
+            db.execSQL("CREATE TABLE product_product " +
+                    "(" +
+                    "id INTEGER UNIQUE," +
+                    "ean13 TEXT," +
+                    "name TEXT," +
+                    "product_tmpl_id INTEGER NOT NULL," +
+                    "FOREIGN KEY (product_tmpl_id) REFERENCES product_template(id)" +
                     ")");
             db.setTransactionSuccessful();
         } finally {

@@ -35,6 +35,7 @@ public class PickingActivity extends AppCompatActivity implements SearchView.OnQ
                 new int[]{R.id.textview_picking_name, R.id.textview_picking_partner, R.id.textview_picking_partner_address},
                 0);
         ListView listView = findViewById(R.id.activity_picking_layout);
+        listView.setOnItemClickListener(new DeliveryActivity.ListViewOnItemClickListener());
         listView.setAdapter(adapter);
         Toolbar toolbar = findViewById(R.id.toolbar_activity_picking);
         setSupportActionBar(toolbar);

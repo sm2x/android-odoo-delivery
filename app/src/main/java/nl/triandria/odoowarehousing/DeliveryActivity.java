@@ -134,7 +134,7 @@ public class DeliveryActivity extends AppCompatActivity implements SearchView.On
     }
 
     // TODO see if I can generalize this, a common listener for all the pickings (yes you can)
-    private class ListViewOnItemClickListener implements AdapterView.OnItemClickListener {
+    static class ListViewOnItemClickListener implements AdapterView.OnItemClickListener {
 
         @Override
         public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
@@ -143,7 +143,7 @@ public class DeliveryActivity extends AppCompatActivity implements SearchView.On
             int _id = cr.getInt(cr.getColumnIndex("_id"));
             Intent intent = new Intent(parent.getContext(), FormStockPickingActivity.class);
             intent.putExtra("_id", _id);
-            startActivity(intent);
+            parent.getContext().startActivity(intent);
         }
     }
 }

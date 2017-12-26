@@ -33,7 +33,10 @@ public class Synchronization extends BroadcastReceiver {
             "stock_location",
             "stock_picking_type",
             "stock_picking",
+            "stock_move",
             "res_partner",
+            "product_template",
+            "product_product",
     };
 
     // TODO this should be launched by a service, FIX OOM, sync in batches
@@ -99,7 +102,7 @@ public class Synchronization extends BroadcastReceiver {
                         partnersToFetchDomain.put("in");
                         partnersToFetchDomain.put(partnersToFetch);
                         outerDomain.put(partnersToFetchDomain);
-                    }
+                    } //TODO check
                     outerDomain2.put(outerDomain);
                     JSONObject fields = new JSONObject();
                     fields.put("fields", modelFields);

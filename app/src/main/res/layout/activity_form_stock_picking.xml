@@ -1,9 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:orientation="vertical"
     tools:context="nl.triandria.odoowarehousing.FormStockPickingActivity">
 
     <android.support.v7.widget.Toolbar
@@ -15,35 +16,26 @@
         android:theme="@style/ThemeOverlay.AppCompat.ActionBar"
         app:popupTheme="@style/ThemeOverlay.AppCompat.Light" />
 
-
-    <!--TODO this should be below the toolbar, why is it not? check Constraintlayout ...-->
-    <LinearLayout
+    <TextView
+        android:id="@+id/textview_stock_picking_name"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical">
+        android:layout_height="wrap_content" />
 
-        <TextView
-            android:id="@+id/textview_stock_picking_name"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content" />
+    <TextView
+        android:id="@+id/textview_partner_id_name"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
 
-        <TextView
-            android:id="@+id/textview_partner_id_name"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content" />
+    <TextView
+        android:id="@+id/textview_partner_id_street"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
 
-        <TextView
-            android:id="@+id/textview_partner_id_street"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content" />
+    <ListView
+        android:id="@+id/listview_stock_picking_lines"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
 
-        <ListView
-            android:id="@+id/listview_stock_picking_lines"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent">
+    </ListView>
 
-        </ListView>
-
-    </LinearLayout>
-
-</android.support.constraint.ConstraintLayout>
+</LinearLayout>
