@@ -145,6 +145,7 @@ public class SessionManager {
                 .put(fields);
         params.put("args", argsArray);
         Log.d(TAG, "Getting partner_id from uid ===> " + params);
+        // TODO the return value is different on v8 from v11
         return client.callJSONObject(
                 "execute_kw", params).getJSONArray("partner_id").getInt(0);
     }

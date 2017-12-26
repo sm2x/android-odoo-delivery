@@ -36,6 +36,9 @@
     <string name="settings">Settings</string>
     <string name="title_activity_settings">Settings</string>
     <string name="licences">==== TODO==== copy all licences here</string>
+    <string name="button_adjust_zero_all">Set all quantities to zero.</string>
+    <string name="edit">Edit</string>
+    <string name="remove">Remove</string>
     <!-- Strings related to Settings -->
 
     <!-- Example General settings -->

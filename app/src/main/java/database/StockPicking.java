@@ -33,7 +33,11 @@ public class StockPicking extends SQLiteOpenHelper {
                 "location_id", "priority", "picking_type_id", "partner_id", "move_type", "company_id",
                 "note", "state", "owner_id", "backorder_id", "create_uid", "min_date", "write_date",
                 "date", "name", "create_date", "location_dest_id", "max_date")));
-        // TODO fetch moves,
+        TABLE_FIELDS.put("stock_move", new JSONArray(Arrays.asList("id", "product_id", "product_uom_id")));
+        TABLE_FIELDS.put("product_template", new JSONArray(Arrays.asList("id", "ean13", "name")));
+        TABLE_FIELDS.put("product_product", new JSONArray(Arrays.asList("id", "ean13", "name", "product_tmpl_id")));
+        TABLE_FIELDS.put("stock_inventory", new JSONArray(Arrays.asList("id", "name", "date", "location_id", "filter")));
+        TABLE_FIELDS.put("stock_inventory_line", new JSONArray(Arrays.asList("id", "product_id", "theoretical_qty", "product_qty")));
     }
 
     @Override
@@ -142,6 +146,23 @@ public class StockPicking extends SQLiteOpenHelper {
                     "name TEXT," +
                     "product_tmpl_id INTEGER NOT NULL," +
                     "FOREIGN KEY (product_tmpl_id) REFERENCES product_template(id)" +
+                    ")");
+            db.execSQL("CREATE TABLE stock_inventory " +
+                    "(" +
+                    "id INTEGER UNIQUE," +
+                    "name TEXT," +
+                    "date INTEGER," +
+                    "location_id INTEGER," +
+                    "filter TEXT," +
+                    "FOREIGN KEY (location_id) REFERENCES stock_location(id)" +
+                    ")");
+            db.execSQL("CREATE TABLE stock_inventory_line " +
+                    "(" +
+                    "id INTEGER UNIQUE," +
+                    "product_id INTEGER," +
+                    "theoretical_qty FLOAT," +
+                    "product_qty FLOAT," +
+                    "FOREIGN KEY (product_id) REFERENCES product_product(id)" +
                     ")");
             db.setTransactionSuccessful();
         } finally {

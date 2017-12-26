@@ -37,6 +37,7 @@ public class Synchronization extends BroadcastReceiver {
             "res_partner",
             "product_template",
             "product_product",
+            "stock_inventory"
     };
 
     // TODO this should be launched by a service, FIX OOM, sync in batches
@@ -59,6 +60,7 @@ public class Synchronization extends BroadcastReceiver {
                 // this will be filled after the stock_picking model is synced, we want to fetch only
                 // relevant partners not all of them
                 JSONArray partnersToFetch = new JSONArray();
+                JSONArray stockInventoryIds = new JSONArray();
                 for (final String model : MODELS_TO_SYNC) {
                     Log.d(TAG, "Syncing model: " + model);
                     final JSONArray modelFields = StockPicking.TABLE_FIELDS.get(model);
@@ -102,7 +104,19 @@ public class Synchronization extends BroadcastReceiver {
                         partnersToFetchDomain.put("in");
                         partnersToFetchDomain.put(partnersToFetch);
                         outerDomain.put(partnersToFetchDomain);
-                    } //TODO check
+                    } else if (model.equals("stock_inventory")) {
+                        JSONArray stockInventory = new JSONArray();
+                        stockInventory.put("state");
+                        stockInventory.put("=");
+                        stockInventory.put("confirm");
+                        outerDomain.put(stockInventory);
+                    } else if (model.equals("stock_inventory_line")) {
+                        JSONArray stockInventoryLine = new JSONArray();
+                        stockInventoryLine.put("picking_id");
+                        stockInventoryLine.put("in");
+                        stockInventoryLine.put(stockInventoryIds);
+                        outerDomain.put(stockInventoryLine);
+                    }
                     outerDomain2.put(outerDomain);
                     JSONObject fields = new JSONObject();
                     fields.put("fields", modelFields);
@@ -123,6 +137,8 @@ public class Synchronization extends BroadcastReceiver {
                             ContentValues values = getContentValues(record);
                             if (model.equals("stock_picking")) {
                                 partnersToFetch.put(values.getAsInteger("partner_id"));
+                            } else if (model.equals("stock_inventory")){
+                                stockInventoryIds.put(values.getAsInteger("id"));
                             }
                             Log.d(TAG, "Inserting values to table: " + model + "\n" + values);
                             db.insertOrThrow(model, null, values);
@@ -146,6 +162,8 @@ public class Synchronization extends BroadcastReceiver {
                             ContentValues values = getContentValues(record);
                             if (model.equals("stock_picking")) {
                                 partnersToFetch.put(values.getAsInteger("partner_id"));
+                            } else if (model.equals("stock_inventory")){
+                                stockInventoryIds.put(values.getAsInteger("id"));
                             }
                             int count = db.update(model, values, "id = " + record.getInt("id"), null);
                             Log.d(TAG, "Updating row with id " + record.get("id") + " because we last synced on "

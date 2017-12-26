@@ -16,7 +16,9 @@
         app:popupTheme="@style/ThemeOverlay.AppCompat.Light"/>
 
 
-    <!--TODO see what inventory adjustments are exactly and -->
-
+    <ListView
+        android:id="@+id/activity_inventory_adjust"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
 
 </android.support.constraint.ConstraintLayout>

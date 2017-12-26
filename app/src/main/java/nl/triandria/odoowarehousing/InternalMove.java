@@ -33,7 +33,7 @@ public class InternalMove extends AppCompatActivity implements SearchView.OnQuer
                 this,
                 R.layout.activity_picking_line,
                 null,
-                new String[]{"name", "partner_id_name", "street"},
+                new String[]{"name", "partner_id_name", "theoretical_qty", "product_qty", "location_id_name"},
                 new int[]{R.id.textview_picking_name, R.id.textview_picking_partner, R.id.textview_picking_partner_address},
                 0);
         ListView listView = findViewById(R.id.activity_internal_move_layout);

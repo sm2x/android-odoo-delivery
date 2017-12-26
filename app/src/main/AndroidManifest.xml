@@ -34,7 +34,8 @@
         <activity
             android:name=".SettingsActivity"
             android:label="@string/title_activity_settings" />
-        <activity android:name=".FormStockPickingActivity"></activity>
+        <activity android:name=".FormStockPickingActivity" />
+        <activity android:name=".FormInventoryAdjust"></activity>
     </application>
 
 </manifest>
