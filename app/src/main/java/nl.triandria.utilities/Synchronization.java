@@ -175,7 +175,6 @@ public class Synchronization extends BroadcastReceiver {
                 }
                 db.setTransactionSuccessful();
             } catch (JSONRPCException | JSONException e) {
-                // TODO inform user,
                 e.printStackTrace();
                 return false;
             } finally {

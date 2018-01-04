@@ -112,7 +112,6 @@ public class SessionManager {
             } catch (JSONException e) {
                 e.printStackTrace();
                 return context.getString(R.string.error_login_failed_generic_error);
-                // TODO: non recoverable error, notify developer
             }
             return null;
         }

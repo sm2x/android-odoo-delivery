@@ -39,6 +39,8 @@
     <string name="button_adjust_zero_all">Set all quantities to zero.</string>
     <string name="edit">Edit</string>
     <string name="remove">Remove</string>
+    <string name="search">Search</string>
+    <string name="search_barcode">Search using Barcode</string>
     <!-- Strings related to Settings -->
 
     <!-- Example General settings -->

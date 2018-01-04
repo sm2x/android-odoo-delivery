@@ -13,7 +13,6 @@ import java.util.HashMap;
 public class StockPicking extends SQLiteOpenHelper {
 
     public static final String DATABASE_NAME = "stock.db";
-    // TODO fill and test
     public static HashMap<String, JSONArray> TABLE_FIELDS = new HashMap<>();
     private static final int DATABASE_VERSION = 1;
 

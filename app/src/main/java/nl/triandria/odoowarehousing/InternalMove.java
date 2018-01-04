@@ -33,7 +33,7 @@ public class InternalMove extends AppCompatActivity implements SearchView.OnQuer
                 this,
                 R.layout.activity_picking_line,
                 null,
-                new String[]{"name", "partner_id_name", "theoretical_qty", "product_qty", "location_id_name"},
+                new String[]{"name", "partner_id_name", "street"},
                 new int[]{R.id.textview_picking_name, R.id.textview_picking_partner, R.id.textview_picking_partner_address},
                 0);
         ListView listView = findViewById(R.id.activity_internal_move_layout);
@@ -45,11 +45,6 @@ public class InternalMove extends AppCompatActivity implements SearchView.OnQuer
 
     @Override
     public boolean onQueryTextSubmit(String query) {
-        // TODO search from database, if not found search remove and bring it local
-        if (!TextUtils.isEmpty(query) && query.length() > 5) {
-            adapter.getFilter().filter(query);
-            return true;
-        }
         return false;
     }
 
@@ -84,14 +79,13 @@ public class InternalMove extends AppCompatActivity implements SearchView.OnQuer
         public Cursor loadInBackground() {
             Log.d(TAG, "LoadinBackground " + this.isStarted());
             final String select_stmt = "SELECT " +
-                    "stock_picking.rowid _id, " +
-                    "stock_picking.name, " +
-                    "res_partner.name as partner_id_name, " +
-                    "res_partner.name, " +
-                    "res_partner.street " +
+                    "stock_picking.rowid AS _id, " +
+                    "stock_picking.name AS name, " +
+                    "res_partner.name AS partner_id_name, " +
+                    "res_partner.street AS street " +
                     "FROM stock_picking INNER JOIN stock_picking_type " +
                     "ON stock_picking.picking_type_id = stock_picking_type.id " +
-                    "INNER join res_partner on res_partner.id = stock_picking.partner_id " +
+                    "INNER JOIN res_partner on res_partner.id = stock_picking.partner_id " +
                     "WHERE stock_picking_type.code = 'internal';";
             if (this.isStarted()) {
                 SQLiteDatabase db = SQLiteDatabase.openDatabase(

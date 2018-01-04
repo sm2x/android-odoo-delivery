@@ -10,7 +10,9 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteCursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
+import android.support.v4.view.MenuItemCompat;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.SearchView;
 import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
 import android.util.Log;
@@ -19,13 +21,17 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
+import android.widget.FilterQueryProvider;
 import android.widget.ListView;
-import android.widget.SearchView;
 import android.widget.SimpleCursorAdapter;
+import android.widget.Toast;
+
+import com.google.zxing.integration.android.IntentIntegrator;
+import com.google.zxing.integration.android.IntentResult;
 
 import database.StockPicking;
 
-
+// TODO try using one activity with one layout and just change the data
 public class DeliveryActivity extends AppCompatActivity implements SearchView.OnQueryTextListener, LoaderManager.LoaderCallbacks {
 
     private static final String TAG = "DeliveryActivity";
@@ -37,6 +43,10 @@ public class DeliveryActivity extends AppCompatActivity implements SearchView.On
         setContentView(R.layout.activity_delivery);
         Toolbar toolbar = findViewById(R.id.toolbar_activity_delivery);
         setSupportActionBar(toolbar);
+        final SQLiteDatabase db = SQLiteDatabase.openDatabase(
+                getDatabasePath(StockPicking.DATABASE_NAME).getAbsolutePath(),
+                null,
+                SQLiteDatabase.OPEN_READONLY);
         adapter = new SimpleCursorAdapter(
                 this,
                 R.layout.activity_picking_line,
@@ -44,6 +54,27 @@ public class DeliveryActivity extends AppCompatActivity implements SearchView.On
                 new String[]{"name", "partner_id_name", "street"},
                 new int[]{R.id.textview_picking_name, R.id.textview_picking_partner, R.id.textview_picking_partner_address},
                 0);
+        adapter.setFilterQueryProvider(new FilterQueryProvider() {
+            @Override
+            public Cursor runQuery(CharSequence constraint) {
+                String filter = constraint.toString();
+                return db.rawQuery("SELECT " +
+                                "stock_picking.rowid _id, " +
+                                "stock_picking.name AS name, " +
+                                "res_partner.name AS partner_id_name, " +
+                                "res_partner.street AS street " +
+                                "FROM " +
+                                "stock_picking " +
+                                "INNER JOIN res_partner on res_partner.id = stock_picking.partner_id " +
+                                "INNER JOIN stock_picking_type on stock_picking.picking_type_id = stock_picking_type.id " +
+                                "WHERE " +
+                                "(stock_picking.name LIKE '%" + filter + "%' " +
+                                "OR res_partner.name LIKE '%" + filter + "%' " +
+                                "OR res_partner.street LIKE '%" + filter + "%') " +
+                                "AND stock_picking_type.code = 'outgoing'",
+                        null);
+            }
+        });
         ListView listView = findViewById(R.id.activity_delivery_layout);
         listView.setOnItemClickListener(new ListViewOnItemClickListener());
         listView.setAdapter(adapter);
@@ -53,16 +84,17 @@ public class DeliveryActivity extends AppCompatActivity implements SearchView.On
 
     @Override
     public boolean onQueryTextSubmit(String query) {
-        // TODO search from database, if not found search remove and bring it local
-        if (!TextUtils.isEmpty(query) && query.length() > 5) {
-            adapter.getFilter().filter(query);
-            return true;
-        }
-        return false;
+        Log.d(TAG, "Filtering data " + query);
+        adapter.getFilter().filter(query);
+        return true;
     }
 
     @Override
     public boolean onQueryTextChange(String newText) {
+        if (TextUtils.isEmpty(newText)) {
+            adapter.getFilter().filter("");
+            return true;
+        }
         return false;
     }
 
@@ -115,25 +147,48 @@ public class DeliveryActivity extends AppCompatActivity implements SearchView.On
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
+            case R.id.toolbar_activity_delivery_barcode:
+                IntentIntegrator integrator = new IntentIntegrator(DeliveryActivity.this);
+                integrator.setBeepEnabled(true);
+                integrator.setBarcodeImageEnabled(true);
+                integrator.setPrompt(getString(R.string.scan_barcode));
+                integrator.initiateScan();
+                break;
             case R.id.toolbar_action_licence:
                 AlertDialog.Builder builder = new AlertDialog.Builder(this);
                 builder.setView(R.id.dialog_licence);
                 builder.show();
+                break;
             case R.id.toolbar_action_settings:
                 startActivity(new Intent(this, SettingsActivity.class));
-            default:
-                return super.onOptionsItemSelected(item);
+                break;
         }
+        return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        IntentResult scanResult = IntentIntegrator.parseActivityResult(requestCode, resultCode, data);
+        if (scanResult != null && scanResult.getContents() != null) {
+            Log.d(TAG, "Successful barcode scan, the encoded information is: " + scanResult.getContents());
+            adapter.getFilter().filter(scanResult.getContents());
+        } else {
+            Log.d(TAG, "Barcode scan error");
+            Toast.makeText(this, getString(R.string.error_barcode_scan), Toast.LENGTH_LONG).show();
+        }
+        super.onActivityResult(requestCode, resultCode, data);
     }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.menu, menu);
-        return true;
+        MenuItem searchViewMenuItem = menu.findItem(R.id.toolbar_activity_delivery_search);
+        SearchView searchView = (SearchView) searchViewMenuItem.getActionView();
+        searchView.setOnQueryTextListener(this);
+        return super.onCreateOptionsMenu(menu);
     }
 
-    // TODO see if I can generalize this, a common listener for all the pickings (yes you can)
     static class ListViewOnItemClickListener implements AdapterView.OnItemClickListener {
 
         @Override

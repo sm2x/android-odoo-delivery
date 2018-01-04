@@ -1,12 +1,27 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
-    <item android:id="@+id/toolbar_action_licence"
+    <item
+        android:id="@+id/toolbar_activity_delivery_barcode"
+        android:icon="@drawable/icon_barcode"
+        android:title="@string/search_barcode"
+        app:showAsAction="ifRoom|collapseActionView" />
+
+    <item
+        android:id="@+id/toolbar_activity_delivery_search"
+        android:icon="@android:drawable/ic_menu_search"
+        android:title="@string/search"
+        app:actionViewClass="android.support.v7.widget.SearchView"
+        app:showAsAction="ifRoom|collapseActionView" />
+
+    <item
+        android:id="@+id/toolbar_action_licence"
         android:title="@string/licence"
         app:showAsAction="never" />
 
-    <item android:id="@+id/toolbar_action_settings"
+    <item
+        android:id="@+id/toolbar_action_settings"
         android:title="@string/settings"
-        app:showAsAction="never"/>
+        app:showAsAction="never" />
 
 </menu>

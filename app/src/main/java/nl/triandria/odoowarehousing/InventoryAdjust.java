@@ -22,7 +22,7 @@ import android.widget.SimpleCursorAdapter;
 import database.StockPicking;
 
 
-public class InventoryAdjust extends AppCompatActivity implements SearchView.OnQueryTextListener, LoaderManager.LoaderCallbacks {
+public class InventoryAdjust extends AppCompatActivity implements LoaderManager.LoaderCallbacks {
 
     private static final String TAG = InventoryAdjust.class.getName();
     SimpleCursorAdapter adapter;
@@ -37,7 +37,7 @@ public class InventoryAdjust extends AppCompatActivity implements SearchView.OnQ
                 this,
                 R.layout.row_stock_inventory_line,
                 null,
-                new String[]{"name", "location_id", "filter"},
+                new String[]{"name", "stock_location_name", "filter"},
                 new int[]{R.id.textview_picking_name, R.id.textview_picking_partner, R.id.textview_picking_partner_address},
                 0);
         ListView listView = findViewById(R.id.activity_inventory_adjust);
@@ -45,21 +45,6 @@ public class InventoryAdjust extends AppCompatActivity implements SearchView.OnQ
         listView.setAdapter(adapter);
         Bundle args = new Bundle();
         getLoaderManager().initLoader(0, args, this);
-    }
-
-    @Override
-    public boolean onQueryTextSubmit(String query) {
-        // TODO search from database, if not found search remove and bring it local
-        if (!TextUtils.isEmpty(query) && query.length() > 5) {
-            adapter.getFilter().filter(query);
-            return true;
-        }
-        return false;
-    }
-
-    @Override
-    public boolean onQueryTextChange(String newText) {
-        return false;
     }
 
     @Override
@@ -87,9 +72,12 @@ public class InventoryAdjust extends AppCompatActivity implements SearchView.OnQ
         @Override
         public Cursor loadInBackground() {
             Log.d(TAG, "LoadinBackground " + this.isStarted());
-            // TODO figure out why this crashes...
             final String select_stmt = "SELECT " +
-                    "stock_inventory.name, stock_inventory.filter, stock_location.name FROM stock_inventory " +
+                    "stock_inventory.rowid AS _id, " +
+                    "stock_inventory.name AS name, " +
+                    "stock_inventory.filter AS filter, " +
+                    "stock_location.name AS stock_location_name " +
+                    "FROM stock_inventory " +
                     "INNER JOIN stock_location " +
                     "ON stock_inventory.location_id = stock_location.id;";
             if (this.isStarted()) {
