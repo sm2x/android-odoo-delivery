@@ -28,7 +28,7 @@ import database.StockPicking;
 
 public class StockMove extends AppCompatActivity {
 
-    private static final String TAG = "StockMove";
+    private static final String TAG = StockMove.class.getName();
     private SimpleCursorAdapter adapter;
     private int product_id, location_from_id, location_to_id;
 

@@ -34,7 +34,7 @@ import database.StockPicking;
 // TODO try using one activity with one layout and just change the data
 public class DeliveryActivity extends AppCompatActivity implements SearchView.OnQueryTextListener, LoaderManager.LoaderCallbacks {
 
-    private static final String TAG = "DeliveryActivity";
+    private static final String TAG = DeliveryActivity.class.getName();
     SimpleCursorAdapter adapter;
 
     @Override

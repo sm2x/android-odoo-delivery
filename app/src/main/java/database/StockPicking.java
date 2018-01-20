@@ -12,6 +12,7 @@ import java.util.HashMap;
 
 public class StockPicking extends SQLiteOpenHelper {
 
+    private static final String TAG = StockPicking.class.getName();
     public static final String DATABASE_NAME = "stock.db";
     public static HashMap<String, JSONArray> TABLE_FIELDS = new HashMap<>();
     private static final int DATABASE_VERSION = 1;
@@ -32,7 +33,7 @@ public class StockPicking extends SQLiteOpenHelper {
                 "location_id", "priority", "picking_type_id", "partner_id", "move_type", "company_id",
                 "note", "state", "owner_id", "backorder_id", "create_uid", "min_date", "write_date",
                 "date", "name", "create_date", "location_dest_id", "max_date")));
-        TABLE_FIELDS.put("stock_move", new JSONArray(Arrays.asList("id", "product_id", "product_uom_id")));
+        TABLE_FIELDS.put("stock_move", new JSONArray(Arrays.asList("id", "product_id", "product_uom_id", "picking_id")));
         TABLE_FIELDS.put("product_template", new JSONArray(Arrays.asList("id", "ean13", "name")));
         TABLE_FIELDS.put("product_product", new JSONArray(Arrays.asList("id", "ean13", "name", "product_tmpl_id")));
         TABLE_FIELDS.put("stock_inventory", new JSONArray(Arrays.asList("id", "name", "date", "location_id", "filter")));

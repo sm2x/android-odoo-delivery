@@ -14,7 +14,7 @@ import com.google.zxing.integration.android.IntentResult;
 
 public class InventoryMove extends AppCompatActivity {
 
-    private static final String TAG = "StockMove";
+    private static final String TAG = InventoryMove.class.getName();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

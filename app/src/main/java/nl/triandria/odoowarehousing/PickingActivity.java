@@ -30,7 +30,7 @@ import database.StockPicking;
 
 public class PickingActivity extends AppCompatActivity implements SearchView.OnQueryTextListener, LoaderManager.LoaderCallbacks {
 
-    private static final String TAG = "PickingActivity";
+    private static final String TAG = PickingActivity.class.getName();
     SimpleCursorAdapter adapter;
 
     @Override

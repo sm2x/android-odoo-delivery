@@ -33,11 +33,11 @@ public class Synchronization extends BroadcastReceiver {
             "stock_location",
             "stock_picking_type",
             "stock_picking",
-            "stock_move",
+            //"stock_move",
             "res_partner",
-            "product_template",
-            "product_product",
-            "stock_inventory"
+            //"product_template",
+            //"product_product",
+            //"stock_inventory"
     };
 
     // TODO this should be launched by a service, FIX OOM, sync in batches

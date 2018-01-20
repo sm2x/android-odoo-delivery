@@ -9,7 +9,6 @@ import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.text.TextUtils;
 import android.util.Log;
 import android.widget.ListView;
 import android.widget.SearchView;
@@ -20,7 +19,7 @@ import database.StockPicking;
 
 public class InternalMove extends AppCompatActivity implements SearchView.OnQueryTextListener, LoaderManager.LoaderCallbacks {
 
-    private static final String TAG = "InternalMoveActivity";
+    private static final String TAG = InternalMove.class.getName();
     SimpleCursorAdapter adapter;
 
     @Override
