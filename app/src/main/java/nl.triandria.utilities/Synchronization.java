@@ -26,18 +26,19 @@ import database.StockPicking;
 public class Synchronization extends BroadcastReceiver {
 
     private static final String TAG = "Synchronization";
-
+// TODO stock_move fetch only picking_id we have, same for rest
     private static final String[] MODELS_TO_SYNC = {
             "res_company",
             "res_users",
             "stock_location",
             "stock_picking_type",
             "stock_picking",
-            //"stock_move",
+            "stock_move",
             "res_partner",
-            //"product_template",
-            //"product_product",
-            //"stock_inventory"
+            "product_template",
+            "product_product",
+            "stock_inventory",
+            "stock_inventory_line"
     };
 
     // TODO this should be launched by a service, FIX OOM, sync in batches

@@ -29,6 +29,8 @@ import android.widget.Toast;
 import com.google.zxing.integration.android.IntentIntegrator;
 import com.google.zxing.integration.android.IntentResult;
 
+import java.util.Arrays;
+
 import database.StockPicking;
 
 // TODO try using one activity with one layout and just change the data
@@ -51,7 +53,7 @@ public class DeliveryActivity extends AppCompatActivity implements SearchView.On
                 this,
                 R.layout.activity_picking_line,
                 null,
-                new String[]{"name", "partner_id_name", "street"},
+                new String[]{"id", "name", "partner_id_name", "street"},
                 new int[]{R.id.textview_picking_name, R.id.textview_picking_partner, R.id.textview_picking_partner_address},
                 0);
         adapter.setFilterQueryProvider(new FilterQueryProvider() {
@@ -61,6 +63,7 @@ public class DeliveryActivity extends AppCompatActivity implements SearchView.On
                 return db.rawQuery("SELECT " +
                                 "stock_picking.rowid _id, " +
                                 "stock_picking.name AS name, " +
+                                "stock_picking.id id," +
                                 "res_partner.name AS partner_id_name, " +
                                 "res_partner.street AS street " +
                                 "FROM " +
@@ -126,6 +129,7 @@ public class DeliveryActivity extends AppCompatActivity implements SearchView.On
             final String select_stmt = "SELECT " +
                     "stock_picking.rowid _id, " +
                     "stock_picking.name, " +
+                    "stock_picking.id, " +
                     "res_partner.name as partner_id_name, " +
                     "res_partner.street " +
                     "FROM stock_picking " +
@@ -195,9 +199,10 @@ public class DeliveryActivity extends AppCompatActivity implements SearchView.On
         public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
             Log.d(TAG, "onItemClick" + parent.getItemAtPosition(position).toString());
             SQLiteCursor cr = (SQLiteCursor) parent.getItemAtPosition(position);
-            int _id = cr.getInt(cr.getColumnIndex("_id"));
+            Log.d(TAG, Arrays.toString(cr.getColumnNames()));
+            int _id = cr.getInt(cr.getColumnIndex("id"));
             Intent intent = new Intent(parent.getContext(), FormStockPickingActivity.class);
-            intent.putExtra("_id", _id);
+            intent.putExtra("id", _id);
             parent.getContext().startActivity(intent);
         }
     }

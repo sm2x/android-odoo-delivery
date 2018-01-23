@@ -144,9 +144,17 @@ public class SessionManager {
                 .put(fields);
         params.put("args", argsArray);
         Log.d(TAG, "Getting partner_id from uid ===> " + params);
-        // TODO the return value is different on v8 from v11
-        return client.callJSONObject(
-                "execute_kw", params).getJSONArray("partner_id").getInt(0);
+        JSONArray paramsArrayVersion = new JSONArray();
+        JSONObject paramsVersion = new JSONObject();
+        paramsVersion.put("service", "common");
+        paramsVersion.put("method", "version");
+        paramsVersion.put("args", paramsArrayVersion);
+        double serverVersion = Double.parseDouble(client.callJSONObject("execute_kw", paramsVersion).getString("server_version"));
+        if (serverVersion == 8.0) {
+            return client.callJSONObject(
+                    "execute_kw", params).getJSONArray("partner_id").getInt(0);
+        }
+        return client.callJSONArray("execute_kw", params).getJSONObject(0).getJSONArray("partner_id").getInt(0);
     }
 
 

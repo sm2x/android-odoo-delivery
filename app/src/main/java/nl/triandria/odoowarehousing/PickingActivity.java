@@ -45,7 +45,7 @@ public class PickingActivity extends AppCompatActivity implements SearchView.OnQ
                 this,
                 R.layout.activity_picking_line,
                 null,
-                new String[]{"name", "partner_id_name", "street"},
+                new String[]{"id", "name", "partner_id_name", "street"},
                 new int[]{R.id.textview_picking_name, R.id.textview_picking_partner, R.id.textview_picking_partner_address},
                 0);
         ListView listView = findViewById(R.id.activity_picking_layout);
@@ -166,6 +166,7 @@ public class PickingActivity extends AppCompatActivity implements SearchView.OnQ
             Log.d(TAG, "LoadinBackground " + this.isStarted());
             final String select_stmt = "SELECT " +
                     "stock_picking.rowid _id, " +
+                    "stock_picking.id, " +
                     "stock_picking.name, " +
                     "res_partner.name as partner_id_name, " +
                     "res_partner.street " +

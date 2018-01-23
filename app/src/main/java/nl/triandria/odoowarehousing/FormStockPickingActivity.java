@@ -24,13 +24,14 @@ public class FormStockPickingActivity extends AppCompatActivity implements Loade
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_form_stock_picking);
-        int _id = getIntent().getIntExtra("_id", 0);
-        Log.d(TAG, "Showing stock_picking record " + _id);
+        int id = getIntent().getIntExtra("id", 0);
+        Log.d(TAG, "Showing stock_picking record " + id);
         SQLiteDatabase db = SQLiteDatabase.openDatabase(
                 this.getDatabasePath(StockPicking.DATABASE_NAME).getAbsolutePath(),
                 null,
                 SQLiteDatabase.OPEN_READONLY);
         Cursor cr = db.rawQuery("SELECT " +
+                "stock_picking.rowid AS _id, " +
                 "stock_picking.name as stock_picking_name, " +
                 "res_partner.name as res_partner_name, " +
                 "res_partner.street as res_partner_street " +
@@ -38,8 +39,8 @@ public class FormStockPickingActivity extends AppCompatActivity implements Loade
                 "INNER JOIN res_partner " +
                 "ON " +
                 "stock_picking.partner_id = res_partner.id " +
-                "WHERE stock_picking.rowid = " +
-                _id, null);
+                "WHERE stock_picking.id = " +
+                id, null);
         cr.moveToFirst();
         TextView stock_picking_name = findViewById(R.id.textview_stock_picking_name);
         TextView partner_id_name = findViewById(R.id.textview_partner_id_name);
@@ -48,12 +49,19 @@ public class FormStockPickingActivity extends AppCompatActivity implements Loade
         stock_picking_name.setText(cr.getString(cr.getColumnIndex("stock_picking_name")));
         partner_id_name.setText(cr.getString(cr.getColumnIndex("res_partner_name")));
         partner_id_street.setText(cr.getString(cr.getColumnIndex("res_partner_street")));
-        // TODO continue setting up the adapter
-        //stock_picking_lines.setAdapter(new SimpleCursorAdapter(this,));
+        adapter = new SimpleCursorAdapter(
+                this,
+                R.layout.stock_move_line,
+                null,
+                new String[]{"name", "product_qty"},
+                new int[]{R.id.textview_stock_move_product_name, R.id.textview_stock_move_product_qty},
+                0
+        );
+        stock_picking_lines.setAdapter(adapter);
         cr.close();
         db.close();
         Bundle args = new Bundle();
-        args.putInt("id", _id);
+        args.putInt("id", id);
         getLoaderManager().initLoader(0, args, this);
     }
 
@@ -87,8 +95,9 @@ public class FormStockPickingActivity extends AppCompatActivity implements Loade
             final String select_stmt = "SELECT " +
                     "stock_move.rowid AS _id, " +
                     "product_product.name AS name, " +
+                    "stock_move.product_uom_qty AS product_qty " +
                     "FROM stock_move INNER JOIN product_product " +
-                    "ON stock_move.product_id = product_product.id" +
+                    "ON stock_move.product_id = product_product.id " +
                     "WHERE stock_move.picking_id = " + this.orderId;
             if (this.isStarted()) {
                 SQLiteDatabase db = SQLiteDatabase.openDatabase(

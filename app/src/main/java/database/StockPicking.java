@@ -33,7 +33,7 @@ public class StockPicking extends SQLiteOpenHelper {
                 "location_id", "priority", "picking_type_id", "partner_id", "move_type", "company_id",
                 "note", "state", "owner_id", "backorder_id", "create_uid", "min_date", "write_date",
                 "date", "name", "create_date", "location_dest_id", "max_date")));
-        TABLE_FIELDS.put("stock_move", new JSONArray(Arrays.asList("id", "product_id", "product_uom_id", "picking_id")));
+        TABLE_FIELDS.put("stock_move", new JSONArray(Arrays.asList("id", "product_id", "product_uom_qty", "picking_id")));
         TABLE_FIELDS.put("product_template", new JSONArray(Arrays.asList("id", "ean13", "name")));
         TABLE_FIELDS.put("product_product", new JSONArray(Arrays.asList("id", "ean13", "name", "product_tmpl_id")));
         TABLE_FIELDS.put("stock_inventory", new JSONArray(Arrays.asList("id", "name", "date", "location_id", "filter")));
@@ -46,7 +46,7 @@ public class StockPicking extends SQLiteOpenHelper {
         super.onConfigure(db);
     }
 
-
+// TODO should get the field from the static var
     @Override
     public void onCreate(SQLiteDatabase db) {
         db.beginTransaction();
@@ -131,7 +131,8 @@ public class StockPicking extends SQLiteOpenHelper {
                     "(" +
                     "id INTEGER UNIQUE," +
                     "product_id INTEGER," +
-                    "product_uom_qty FLOAT" +
+                    "product_uom_qty FLOAT," +
+                    "picking_id INTEGER" +
                     ")");
             db.execSQL("CREATE TABLE product_template " +
                     "(" +

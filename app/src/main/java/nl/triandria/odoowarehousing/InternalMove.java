@@ -80,13 +80,14 @@ public class InternalMove extends AppCompatActivity implements SearchView.OnQuer
             final String select_stmt = "SELECT " +
                     "stock_picking.rowid AS _id, " +
                     "stock_picking.name AS name, " +
+                    "stock_picking.id, " +
                     "res_partner.name AS partner_id_name, " +
                     "res_partner.street AS street " +
                     "FROM stock_picking INNER JOIN stock_picking_type " +
                     "ON stock_picking.picking_type_id = stock_picking_type.id " +
                     "INNER JOIN res_partner on res_partner.id = stock_picking.partner_id " +
                     "WHERE stock_picking_type.code = 'internal';";
-            if (this.isStarted()) {
+            if (this.isStarted()) {// TODO why isn't this returning data?
                 SQLiteDatabase db = SQLiteDatabase.openDatabase(
                         this.getContext().getDatabasePath(StockPicking.DATABASE_NAME).getAbsolutePath(),
                         null,
