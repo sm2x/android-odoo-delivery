@@ -45,7 +45,7 @@ public class PickingActivity extends AppCompatActivity implements SearchView.OnQ
                 this,
                 R.layout.activity_picking_line,
                 null,
-                new String[]{"id", "name", "partner_id_name", "street"},
+                new String[]{"id", "stock_picking_name", "res_partner_name", "res_partner_street"},
                 new int[]{R.id.textview_picking_name, R.id.textview_picking_partner, R.id.textview_picking_partner_address},
                 0);
         ListView listView = findViewById(R.id.activity_picking_layout);
@@ -56,9 +56,9 @@ public class PickingActivity extends AppCompatActivity implements SearchView.OnQ
                 String filter = constraint.toString();
                 return db.rawQuery("SELECT " +
                                 "stock_picking.rowid _id, " +
-                                "stock_picking.name AS name, " +
-                                "res_partner.name AS partner_id_name, " +
-                                "res_partner.street AS street " +
+                                "stock_picking.name AS stock_picking_name, " +
+                                "res_partner.name AS res_partner_name, " +
+                                "res_partner.street AS res_partner_street " +
                                 "FROM " +
                                 "stock_picking " +
                                 "INNER JOIN res_partner on res_partner.id = stock_picking.partner_id " +
@@ -167,9 +167,9 @@ public class PickingActivity extends AppCompatActivity implements SearchView.OnQ
             final String select_stmt = "SELECT " +
                     "stock_picking.rowid _id, " +
                     "stock_picking.id, " +
-                    "stock_picking.name, " +
-                    "res_partner.name as partner_id_name, " +
-                    "res_partner.street " +
+                    "stock_picking.name AS stock_picking_name, " +
+                    "res_partner.name AS res_partner_name, " +
+                    "res_partner.street AS res_partner_street " +
                     "FROM stock_picking INNER JOIN stock_picking_type " +
                     "ON stock_picking.picking_type_id = stock_picking_type.id " +
                     "INNER join res_partner on res_partner.id = stock_picking.partner_id " +

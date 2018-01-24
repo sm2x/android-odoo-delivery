@@ -32,7 +32,7 @@ public class InternalMove extends AppCompatActivity implements SearchView.OnQuer
                 this,
                 R.layout.activity_picking_line,
                 null,
-                new String[]{"name", "partner_id_name", "street"},
+                new String[]{"stock_picking_name", "location_id_name", "location_dest_id_name"},
                 new int[]{R.id.textview_picking_name, R.id.textview_picking_partner, R.id.textview_picking_partner_address},
                 0);
         ListView listView = findViewById(R.id.activity_internal_move_layout);
@@ -79,15 +79,16 @@ public class InternalMove extends AppCompatActivity implements SearchView.OnQuer
             Log.d(TAG, "LoadinBackground " + this.isStarted());
             final String select_stmt = "SELECT " +
                     "stock_picking.rowid AS _id, " +
-                    "stock_picking.name AS name, " +
+                    "stock_picking.name AS stock_picking_name, " +
                     "stock_picking.id, " +
-                    "res_partner.name AS partner_id_name, " +
-                    "res_partner.street AS street " +
+                    "from_location.name AS location_id_name, " +
+                    "to_location.name AS location_dest_id_name " +
                     "FROM stock_picking INNER JOIN stock_picking_type " +
                     "ON stock_picking.picking_type_id = stock_picking_type.id " +
-                    "INNER JOIN res_partner on res_partner.id = stock_picking.partner_id " +
+                    "INNER JOIN stock_location from_location ON from_location.id = stock_picking.location_id " +
+                    "INNER JOIN stock_location to_location ON to_location.id = stock_picking.location_dest_id " +
                     "WHERE stock_picking_type.code = 'internal';";
-            if (this.isStarted()) {// TODO why isn't this returning data?
+            if (this.isStarted()) {
                 SQLiteDatabase db = SQLiteDatabase.openDatabase(
                         this.getContext().getDatabasePath(StockPicking.DATABASE_NAME).getAbsolutePath(),
                         null,

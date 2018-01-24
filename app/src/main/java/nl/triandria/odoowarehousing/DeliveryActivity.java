@@ -53,7 +53,7 @@ public class DeliveryActivity extends AppCompatActivity implements SearchView.On
                 this,
                 R.layout.activity_picking_line,
                 null,
-                new String[]{"id", "name", "partner_id_name", "street"},
+                new String[]{"id", "stock_picking_name", "res_partner_name", "res_partner_street"},
                 new int[]{R.id.textview_picking_name, R.id.textview_picking_partner, R.id.textview_picking_partner_address},
                 0);
         adapter.setFilterQueryProvider(new FilterQueryProvider() {
@@ -62,10 +62,10 @@ public class DeliveryActivity extends AppCompatActivity implements SearchView.On
                 String filter = constraint.toString();
                 return db.rawQuery("SELECT " +
                                 "stock_picking.rowid _id, " +
-                                "stock_picking.name AS name, " +
+                                "stock_picking.name AS stock_picking_name, " +
                                 "stock_picking.id id," +
-                                "res_partner.name AS partner_id_name, " +
-                                "res_partner.street AS street " +
+                                "res_partner.name AS res_partner_name, " +
+                                "res_partner.street AS res_partner_street " +
                                 "FROM " +
                                 "stock_picking " +
                                 "INNER JOIN res_partner on res_partner.id = stock_picking.partner_id " +
@@ -128,10 +128,10 @@ public class DeliveryActivity extends AppCompatActivity implements SearchView.On
             Log.d(TAG, "LoadinBackground " + this.isStarted());
             final String select_stmt = "SELECT " +
                     "stock_picking.rowid _id, " +
-                    "stock_picking.name, " +
+                    "stock_picking.name AS stock_picking_name, " +
                     "stock_picking.id, " +
-                    "res_partner.name as partner_id_name, " +
-                    "res_partner.street " +
+                    "res_partner.name AS res_partner_name, " +
+                    "res_partner.street AS res_partner_street " +
                     "FROM stock_picking " +
                     "INNER JOIN stock_picking_type ON stock_picking.picking_type_id = stock_picking_type.id " +
                     "INNER join res_partner on res_partner.id = stock_picking.partner_id " +
@@ -203,6 +203,21 @@ public class DeliveryActivity extends AppCompatActivity implements SearchView.On
             int _id = cr.getInt(cr.getColumnIndex("id"));
             Intent intent = new Intent(parent.getContext(), FormStockPickingActivity.class);
             intent.putExtra("id", _id);
+            intent.putExtra("stock_picking_name", cr.getString(cr.getColumnIndex("stock_picking_name")));
+            // TODO remove duplicates
+            if (parent.getId() == R.id.activity_delivery_layout) {
+                intent.putExtra("res_partner_name", cr.getString(cr.getColumnIndex("res_partner_name")));
+                intent.putExtra("res_partner_street", cr.getString(cr.getColumnIndex("res_partner_street")));
+                intent.putExtra("source", "outgoing");
+            } else if (parent.getId() == R.id.activity_picking_layout) {
+                intent.putExtra("res_partner_name", cr.getString(cr.getColumnIndex("res_partner_name")));
+                intent.putExtra("res_partner_street", cr.getString(cr.getColumnIndex("res_partner_street")));
+                intent.putExtra("source", "incoming");
+            } else if (parent.getId() == R.id.activity_internal_move_layout) {
+                intent.putExtra("location_id_name", cr.getString(cr.getColumnIndex("location_id_name")));
+                intent.putExtra("location_dest_id_name", cr.getString(cr.getColumnIndex("location_dest_id_name")));
+                intent.putExtra("source", "internal");
+            }
             parent.getContext().startActivity(intent);
         }
     }
