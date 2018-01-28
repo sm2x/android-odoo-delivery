@@ -157,7 +157,6 @@ public class SessionManager {
         return client.callJSONArray("execute_kw", params).getJSONObject(0).getJSONArray("partner_id").getInt(0);
     }
 
-
     public static class GetDatabasesTask extends AsyncTask<URI, Integer, ArrayList<String>> {
 
         WeakReference<DialogFragment> weakReference;

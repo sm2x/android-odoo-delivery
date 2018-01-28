@@ -1,7 +1,10 @@
 package nl.triandria.utilities;
 
 
+import android.app.job.JobInfo;
+import android.app.job.JobScheduler;
 import android.content.BroadcastReceiver;
+import android.content.ComponentName;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
@@ -22,11 +25,14 @@ import java.util.Date;
 import java.util.Iterator;
 
 import database.StockPicking;
+import nl.triandria.odoowarehousing.SettingsActivity;
+
+import static nl.triandria.odoowarehousing.services.Synchronization.JOB_ID;
 
 public class Synchronization extends BroadcastReceiver {
 
     private static final String TAG = "Synchronization";
-// TODO stock_move fetch only picking_id we have, same for rest
+    private static final int MAX_RECORDS_PER_REQUEST = 100;
     private static final String[] MODELS_TO_SYNC = {
             "res_company",
             "res_users",
@@ -41,11 +47,10 @@ public class Synchronization extends BroadcastReceiver {
             "stock_inventory_line"
     };
 
-    // TODO this should be launched by a service, FIX OOM, sync in batches
-    private static class TaskSync extends AsyncTask<Context, Integer, Boolean> {
+    private static class TaskSync extends AsyncTask<Context, Integer, Context> {
 
         @Override
-        protected Boolean doInBackground(Context... contexts) {
+        protected Context doInBackground(Context... contexts) {
             SharedPreferences sharedPreferences = contexts[0].getSharedPreferences(
                     SessionManager.SHARED_PREFERENCES_FILENAME, Context.MODE_PRIVATE);
             String last_sync_date = sharedPreferences.getString("last_sync_date", null);
@@ -90,33 +95,45 @@ public class Synchronization extends BroadcastReceiver {
                     outerDomain.put(domain);
                     JSONArray pickingsAssigned = new JSONArray();
                     JSONArray pickingState = new JSONArray();
-                    if (model.equals("stock_picking")) {
-                        pickingsAssigned.put("owner_id");
-                        pickingsAssigned.put("=");
-                        pickingsAssigned.put(uid_partner_id);
-                        outerDomain.put(pickingsAssigned);
-                        pickingState.put("state");
-                        pickingState.put("=");
-                        pickingState.put("assigned");
-                        outerDomain.put(pickingState);
-                    } else if (model.equals("res_partner")) {
-                        JSONArray partnersToFetchDomain = new JSONArray();
-                        partnersToFetchDomain.put("id");
-                        partnersToFetchDomain.put("in");
-                        partnersToFetchDomain.put(partnersToFetch);
-                        outerDomain.put(partnersToFetchDomain);
-                    } else if (model.equals("stock_inventory")) {
-                        JSONArray stockInventory = new JSONArray();
-                        stockInventory.put("state");
-                        stockInventory.put("=");
-                        stockInventory.put("confirm");
-                        outerDomain.put(stockInventory);
-                    } else if (model.equals("stock_inventory_line")) {
-                        JSONArray stockInventoryLine = new JSONArray();
-                        stockInventoryLine.put("picking_id");
-                        stockInventoryLine.put("in");
-                        stockInventoryLine.put(stockInventoryIds);
-                        outerDomain.put(stockInventoryLine);
+                    switch (model) {
+                        case "stock_picking":
+                            pickingsAssigned.put("owner_id");
+                            pickingsAssigned.put("=");
+                            pickingsAssigned.put(uid_partner_id);
+                            outerDomain.put(pickingsAssigned);
+                            pickingState.put("state");
+                            pickingState.put("=");
+                            pickingState.put("assigned");
+                            outerDomain.put(pickingState);
+                            break;
+                        case "res_partner":
+                            JSONArray partnersToFetchDomain = new JSONArray();
+                            partnersToFetchDomain.put("id");
+                            partnersToFetchDomain.put("in");
+                            partnersToFetchDomain.put(partnersToFetch);
+                            outerDomain.put(partnersToFetchDomain);
+                            break;
+                        case "stock_inventory":
+                            JSONArray stockInventory = new JSONArray();
+                            stockInventory.put("state");
+                            stockInventory.put("=");
+                            stockInventory.put("confirm");
+                            outerDomain.put(stockInventory);
+                            break;
+                        case "stock_inventory_line":
+                            JSONArray stockInventoryLine = new JSONArray();
+                            stockInventoryLine.put("inventory_id");
+                            stockInventoryLine.put("in");
+                            stockInventoryLine.put(stockInventoryIds);
+                            outerDomain.put(stockInventoryLine);
+                            break;
+                        case "stock_move":
+                            JSONArray stockMove = new JSONArray();
+                            stockMove.put("picking_id");
+                            stockMove.put("in");
+                            stockMove.put(get_stock_picking_ids(db));
+                            outerDomain.put(stockMove);
+                            break;
                     }
                     outerDomain2.put(outerDomain);
                     JSONObject fields = new JSONObject();
@@ -128,6 +145,7 @@ public class Synchronization extends BroadcastReceiver {
                             .put("search_read")
                             .put(outerDomain2)
                             .put(fields);
+                    fields.put("limit", MAX_RECORDS_PER_REQUEST);
                     params.put("args", argsArray);
                     Log.d(TAG, params.toString());
                     if (last_sync_date == null) {
@@ -138,14 +156,13 @@ public class Synchronization extends BroadcastReceiver {
                             ContentValues values = getContentValues(record);
                             if (model.equals("stock_picking")) {
                                 partnersToFetch.put(values.getAsInteger("partner_id"));
-                            } else if (model.equals("stock_inventory")){
+                            } else if (model.equals("stock_inventory")) {
                                 stockInventoryIds.put(values.getAsInteger("id"));
                             }
                             Log.d(TAG, "Inserting values to table: " + model + "\n" + values);
                             db.insertOrThrow(model, null, values);
                         }
                     } else {
-                        // TODO test the differential syncing
                         Log.d(TAG, "Differential syncing.");
                         JSONArray dateDomain = new JSONArray();
                         dateDomain.put("write_date");
@@ -163,7 +180,7 @@ public class Synchronization extends BroadcastReceiver {
                             ContentValues values = getContentValues(record);
                             if (model.equals("stock_picking")) {
                                 partnersToFetch.put(values.getAsInteger("partner_id"));
-                            } else if (model.equals("stock_inventory")){
+                            } else if (model.equals("stock_inventory")) {
                                 stockInventoryIds.put(values.getAsInteger("id"));
                             }
                             int count = db.update(model, values, "id = " + record.getInt("id"), null);
@@ -177,14 +194,34 @@ public class Synchronization extends BroadcastReceiver {
                 db.setTransactionSuccessful();
             } catch (JSONRPCException | JSONException e) {
                 e.printStackTrace();
-                return false;
+                return contexts[0];
             } finally {
                 Log.d(TAG, "Ending transaction");
                 db.endTransaction();
                 db.close();
             }
-            return true;
+            return contexts[0];
         }
+
+
+        @Override
+        protected void onPostExecute(Context context) {
+            super.onPostExecute(context);
+            Log.d(TAG, "Initial sync finished");
+            startService(context);
+        }
+
+        private static void startService(Context context) {
+            Log.d(TAG, "Starting background sync service");
+            JobInfo.Builder jobBuilder = new JobInfo.Builder(JOB_ID, new ComponentName(context.getPackageName(),
+                    nl.triandria.odoowarehousing.services.Synchronization.class.getName()));
+            jobBuilder.setPeriodic(SettingsActivity.get_sync_interval());
+            jobBuilder.setRequiredNetworkType(JobInfo.NETWORK_TYPE_ANY);
+            JobInfo jobInfo = jobBuilder.build();
+            JobScheduler jobScheduler = (JobScheduler) context.getSystemService(Context.JOB_SCHEDULER_SERVICE);
+            jobScheduler.schedule(jobInfo);
+        }
+
     }
 
     private static ContentValues getContentValues(JSONObject record) throws JSONException {
@@ -201,6 +238,18 @@ public class Synchronization extends BroadcastReceiver {
             }
         }
         return values;
+    }
+
+    private static JSONArray get_stock_picking_ids(SQLiteDatabase db) {
+        Cursor cr = db.rawQuery("SELECT id FROM stock_picking", null);
+        JSONArray ids = new JSONArray();
+        if (cr.moveToFirst()) {
+            do {
+                ids.put(cr.getInt(0));
+            } while (cr.moveToNext());
+        }
+        cr.close();
+        return ids;
     }
 
     @Override
