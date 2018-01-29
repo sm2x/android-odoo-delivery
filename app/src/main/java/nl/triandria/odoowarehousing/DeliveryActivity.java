@@ -32,7 +32,7 @@ import java.util.Arrays;
 
 import database.StockPicking;
 
-// TODO try using one activity with one layout and just change the data
+// TODO try using one activity with one layout and just change the data, maybe fragments for reusing the toolbar?
 public class DeliveryActivity extends AppCompatActivity implements SearchView.OnQueryTextListener, LoaderManager.LoaderCallbacks {
 
     private static final String TAG = DeliveryActivity.class.getName();

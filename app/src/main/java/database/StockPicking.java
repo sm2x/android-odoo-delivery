@@ -46,11 +46,11 @@ public class StockPicking extends SQLiteOpenHelper {
         super.onConfigure(db);
     }
 
-// TODO should get the field from the static var
     @Override
     public void onCreate(SQLiteDatabase db) {
         db.beginTransaction();
         try {
+            //TODO for table in tables: create table table (field TYPE CONSTRAINS) possibly remove foreign keys....
             db.execSQL("CREATE TABLE stock_picking " +
                     "(" +
                     "id INTEGER UNIQUE," +
@@ -78,11 +78,7 @@ public class StockPicking extends SQLiteOpenHelper {
                     "FOREIGN KEY (write_uid) REFERENCES res_users(id)," +
                     "FOREIGN KEY (location_id) REFERENCES stock_location(id)," +
                     "FOREIGN KEY (picking_type_id) REFERENCES stock_picking_type(id)," +
-                    // this has to go because it complicates the sync.
-                    //"FOREIGN KEY (partner_id) REFERENCES res_partner(id)," +
                     "FOREIGN KEY (company_id) REFERENCES res_company(id)," +
-                    //"FOREIGN KEY (owner_id) REFERENCES res_partner(id)," +
-                    //"FOREIGN KEY (backorder_id) REFERENCES stock_picking(id)," +
                     "FOREIGN KEY (create_uid) REFERENCES res_users(id)," +
                     "FOREIGN KEY (location_dest_id) REFERENCES stock_location(id)" +
                     ")");
@@ -97,7 +93,6 @@ public class StockPicking extends SQLiteOpenHelper {
                     "company_id INTEGER," +
                     "partner_id INTEGER," +
                     "FOREIGN KEY (company_id) REFERENCES res_company(id)" +
-                    //"FOREIGN KEY (partner_id) REFERENCES res_partner(id)" +
                     ")");
             db.execSQL("CREATE TABLE res_partner " +
                     "(" +

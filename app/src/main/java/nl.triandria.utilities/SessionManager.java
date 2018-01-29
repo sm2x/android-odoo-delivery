@@ -31,6 +31,8 @@ import nl.triandria.odoowarehousing.R;
 public class SessionManager {
 
     // TODO: Separate input validation and state validation (are we connected to the internet?) into different functions
+    // setup a broadcast receiver, if the receiver receives that the connection has been dropped for some reason
+    // create a popup that is cannot be dismissed
     private static final String TAG = "SessionManager";
     static final String SHARED_PREFERENCES_FILENAME = "odoo.sec";
 
