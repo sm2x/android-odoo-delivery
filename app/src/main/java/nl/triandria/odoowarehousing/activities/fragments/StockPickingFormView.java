@@ -1,4 +1,4 @@
-package nl.triandria.odoowarehousing.fragments;
+package nl.triandria.odoowarehousing.activities.fragments;
 
 import android.app.Fragment;
 

@@ -1,14 +1,17 @@
-package nl.triandria.odoowarehousing;
+package nl.triandria.odoowarehousing.activities;
 
 import android.app.AlertDialog;
 import android.app.DialogFragment;
+import android.app.FragmentTransaction;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.Toolbar;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
@@ -18,18 +21,28 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
+import android.widget.SearchView;
+import android.widget.SimpleCursorAdapter;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
+import android.widget.Toolbar;
+
+import com.google.zxing.integration.android.IntentIntegrator;
+import com.google.zxing.integration.android.IntentResult;
 
 import java.net.URI;
 import java.util.HashMap;
 
+import nl.triandria.odoowarehousing.R;
+import nl.triandria.odoowarehousing.SettingsActivity;
+import nl.triandria.odoowarehousing.activities.fragments.Main;
 import nl.triandria.utilities.SessionManager;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements SearchView.OnQueryTextListener {
 
     private static final String TAG = MainActivity.class.getName();
+    SimpleCursorAdapter adapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -37,66 +50,20 @@ public class MainActivity extends AppCompatActivity {
         Log.d(TAG, "Oncreate");
         setContentView(R.layout.activity_main);
         Toolbar toolbar = findViewById(R.id.toolbar_main_activity);
-        setSupportActionBar(toolbar);
-        Button buttonDeliver =  findViewById(R.id.button_deliver);
-        buttonDeliver.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                startActivity(new Intent(v.getContext(), DeliveryActivity.class));
-            }
-        });
-        Button buttonPickup =  findViewById(R.id.button_pickup);
-        buttonPickup.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                startActivity(new Intent(v.getContext(), PickingActivity.class));
-            }
-        });
-        Button buttonInternalMoves =  findViewById(R.id.button_internal_move);
-        buttonInternalMoves.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                startActivity(new Intent(v.getContext(), InternalMove.class));
-            }
-        });
-        Button buttonStockMove =  findViewById(R.id.button_stock_move);
-        buttonStockMove.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                startActivity(new Intent(v.getContext(), StockMove.class));
-            }
-        });
-        Button buttonInventoryMove =  findViewById(R.id.button_inventory_move);
-        buttonInventoryMove.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                startActivity(new Intent(v.getContext(), InventoryMove.class));
-            }
-        });
-        Button buttonInventoryAdjust =  findViewById(R.id.button_inventory_adjust);
-        buttonInventoryAdjust.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                startActivity(new Intent(v.getContext(), InventoryAdjust.class));
-            }
-        });
+        setActionBar(toolbar);
         boolean isLoggedIn = SessionManager.isLoggedIn(this);
-
+        FragmentTransaction transaction = getFragmentManager().beginTransaction();
         if (!isLoggedIn) {
             Log.d(TAG, "User is NOT logged in.");
-            LoginDialog loginDialog = new LoginDialog();
-            loginDialog.setCancelable(false);
-            loginDialog.show(getFragmentManager(), "dialog_login");
+            transaction.replace(R.id.layout_main_activity, new LoginDialog());
+        } else {
+            Log.d(TAG, "User is logged in");
+            transaction.replace(R.id.layout_main_activity, new Main());
         }
+        transaction.commit();
     }
 
     public static class LoginDialog extends DialogFragment {
-
-        @Override
-        public void onStart() {
-            super.onStart();
-            this.getDialog().getWindow().setLayout(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.MATCH_PARENT);
-        }
 
         @Nullable
         @Override
@@ -197,19 +164,58 @@ public class MainActivity extends AppCompatActivity {
         }
 
     }
-        @Override
-        public boolean onOptionsItemSelected(MenuItem item) {
-            switch (item.getItemId()) {
-                case R.id.toolbar_action_licence:
-                    AlertDialog.Builder builder = new AlertDialog.Builder(this);
-                    builder.setView(R.id.dialog_licence);
-                    builder.show();
-                case R.id.toolbar_action_settings:
-                    startActivity(new Intent(this, SettingsActivity.class));
-                default:
-                    return super.onOptionsItemSelected(item);
-            }
-        }
 
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.toolbar_action_licence:
+                AlertDialog.Builder builder = new AlertDialog.Builder(this);
+                builder.setView(R.id.dialog_licence);
+                builder.show();
+            case R.id.toolbar_action_settings:
+                startActivity(new Intent(this, SettingsActivity.class));
+            default:
+                return super.onOptionsItemSelected(item);
+        }
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.menu, menu);
+        MenuItem searchViewMenuItem = menu.findItem(R.id.toolbar_activity_delivery_search);
+        SearchView searchView = (SearchView) searchViewMenuItem.getActionView();
+        searchView.setOnQueryTextListener(this);
+        return super.onCreateOptionsMenu(menu);
+    }
+
+    @Override
+    public boolean onQueryTextSubmit(String query) {
+        Log.d(TAG, "Filtering data " + query);
+        adapter.getFilter().filter(query);
+        return true;
+    }
+
+    @Override
+    public boolean onQueryTextChange(String newText) {
+        if (TextUtils.isEmpty(newText)) {
+            adapter.getFilter().filter("");
+            return true;
+        }
+        return false;
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        IntentResult scanResult = IntentIntegrator.parseActivityResult(requestCode, resultCode, data);
+        if (scanResult != null && scanResult.getContents() != null) {
+            Log.d(TAG, "Successful barcode scan, the encoded information is: " + scanResult.getContents());
+            adapter.getFilter().filter(scanResult.getContents());
+        } else {
+            Log.d(TAG, "Barcode scan error");
+            Toast.makeText(this, getString(R.string.error_barcode_scan), Toast.LENGTH_LONG).show();
+        }
+        super.onActivityResult(requestCode, resultCode, data);
+    }
 
 }
