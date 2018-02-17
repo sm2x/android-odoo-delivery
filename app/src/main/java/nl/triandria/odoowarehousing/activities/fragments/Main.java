@@ -25,10 +25,14 @@ public class Main extends Fragment {
         FragmentManager manager = getFragmentManager();
         final FragmentTransaction transaction = manager.beginTransaction();
         Button buttonDeliver = layout.findViewById(R.id.button_deliver);
+        final Bundle args = new Bundle();
         buttonDeliver.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                transaction.replace(R.id.layout_main_fragment, new StockInventoryListView());
+                StockInventoryAdjustListView fragment = new StockInventoryAdjustListView();
+                args.putString("type", "outgoing");
+                fragment.setArguments(args);
+                transaction.replace(R.id.layout_main_fragment, fragment);
                 transaction.addToBackStack(null);
                 transaction.commit();
             }
@@ -37,7 +41,10 @@ public class Main extends Fragment {
         buttonPickup.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                transaction.replace(R.id.layout_main_fragment, new StockInventoryListView());
+                StockInventoryAdjustListView fragment = new StockInventoryAdjustListView();
+                args.putString("type", "incoming");
+                fragment.setArguments(args);
+                transaction.replace(R.id.layout_main_fragment, fragment);
                 transaction.addToBackStack(null);
                 transaction.commit();
             }
@@ -46,7 +53,10 @@ public class Main extends Fragment {
         buttonInternalMoves.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                transaction.replace(R.id.layout_main_fragment, new StockInventoryListView());
+                StockInventoryAdjustListView fragment = new StockInventoryAdjustListView();
+                args.putString("type", "internal");
+                fragment.setArguments(args);
+                transaction.replace(R.id.layout_main_fragment, new StockInventoryAdjustListView());
                 transaction.addToBackStack(null);
                 transaction.commit();
             }
@@ -55,7 +65,7 @@ public class Main extends Fragment {
         buttonStockMove.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                transaction.replace(R.id.layout_main_fragment, new StockInventoryFormView());
+                transaction.replace(R.id.layout_main_fragment, new StockInventoryAdjustFormView());
                 transaction.addToBackStack(null);
                 transaction.commit();
             }
@@ -73,7 +83,7 @@ public class Main extends Fragment {
         buttonInventoryAdjust.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                transaction.replace(R.id.layout_main_fragment, new StockInventoryListView());
+                transaction.replace(R.id.layout_main_fragment, new StockInventoryAdjustListView());
                 transaction.addToBackStack(null);
                 transaction.commit();
             }

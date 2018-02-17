@@ -4,8 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
-    tools:context="nl.triandria.odoowarehousing.FormStockPickingActivity">
+    android:orientation="vertical">
 
     <Button
         android:id="@+id/button_inventory_adjust_zero_all"
