@@ -4,4 +4,6 @@ import android.app.ListFragment;
 
 
 public class Settings extends ListFragment {
+
+    // TODO sync time, server, users, local data
 }

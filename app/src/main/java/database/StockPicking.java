@@ -99,6 +99,7 @@ public class StockPicking extends SQLiteOpenHelper {
         stock_inventory_line_fields.put("product_id", "INTEGER");
         stock_inventory_line_fields.put("theoretical_qty", "INTEGER");
         stock_inventory_line_fields.put("product_qty", "INTEGER");
+        stock_inventory_line_fields.put("inventory_id", "INTEGER");
         TABLE_STRUCTURE.put("res_company", res_company_fields);
         TABLE_STRUCTURE.put("res_partner", res_partner_fields);
         TABLE_STRUCTURE.put("res_users", res_users_fields);

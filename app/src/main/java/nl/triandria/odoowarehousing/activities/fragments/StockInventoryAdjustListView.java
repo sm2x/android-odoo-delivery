@@ -1,55 +1,52 @@
-package nl.triandria.odoowarehousing;
+package nl.triandria.odoowarehousing.activities.fragments;
 
+
+import android.app.FragmentTransaction;
+import android.app.ListFragment;
 import android.app.LoaderManager;
 import android.content.Context;
 import android.content.CursorLoader;
-import android.content.Intent;
 import android.content.Loader;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteCursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
-import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.Toolbar;
-import android.text.TextUtils;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ListView;
-import android.widget.SearchView;
 import android.widget.SimpleCursorAdapter;
 
 import database.StockPicking;
+import nl.triandria.odoowarehousing.R;
 
+public class StockInventoryAdjustListView extends ListFragment implements LoaderManager.LoaderCallbacks {
 
-public class InventoryAdjust extends AppCompatActivity implements LoaderManager.LoaderCallbacks {
-
-    private static final String TAG = InventoryAdjust.class.getName();
+    private static final String TAG = StockInventoryAdjustListView.class.getName();
     SimpleCursorAdapter adapter;
 
+
     @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_inventory_adjust);
-        Toolbar toolbar = findViewById(R.id.toolbar_activity_inventory_adjust);
-        setSupportActionBar(toolbar);
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        ListView listView = (ListView) inflater.inflate(R.layout.fragment_stock_inventory_adjust_list_view, container);
         adapter = new SimpleCursorAdapter(
-                this,
+                getActivity(),
                 R.layout.row_stock_inventory_line,
                 null,
                 new String[]{"name", "stock_location_name", "filter"},
                 new int[]{R.id.textview_picking_name, R.id.textview_picking_partner, R.id.textview_picking_partner_address},
                 0);
-        ListView listView = findViewById(R.id.activity_inventory_adjust);
         listView.setOnItemClickListener(new ListViewOnItemClickListener());
         listView.setAdapter(adapter);
-        Bundle args = new Bundle();
-        getLoaderManager().initLoader(0, args, this);
+        getLoaderManager().initLoader(0, null, this);
+        return listView;
     }
 
     @Override
     public Loader onCreateLoader(int id, Bundle args) {
-        return new CustomCursorLoader(this);
+        return new CustomCursorLoader(getActivity());
     }
 
     @Override
@@ -98,10 +95,14 @@ public class InventoryAdjust extends AppCompatActivity implements LoaderManager.
             Log.d(TAG, "onItemClick" + parent.getItemAtPosition(position).toString());
             SQLiteCursor cr = (SQLiteCursor) parent.getItemAtPosition(position);
             int _id = cr.getInt(cr.getColumnIndex("_id"));
-            Intent intent = new Intent(parent.getContext(), FormInventoryAdjust.class);
-            intent.putExtra("_id", _id);
-            parent.getContext().startActivity(intent);
+            Bundle args = new Bundle();
+            args.putInt("_id", _id);
+            StockInventoryAdjustFormView formView = new StockInventoryAdjustFormView();
+            formView.setArguments(args);
+            FragmentTransaction transaction = getFragmentManager().beginTransaction();
+            transaction.replace(parent.getId(), formView);
+            transaction.addToBackStack(null);
+            transaction.commit();
         }
     }
-
 }

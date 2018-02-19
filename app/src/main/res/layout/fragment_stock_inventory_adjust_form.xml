@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/fragment_stock_inventory_adjust_form"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <Button
+        android:id="@+id/button_inventory_adjust_zero_all"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:text="@string/button_adjust_zero_all" />
+
+    <ListView
+        android:id="@+id/listview_stock_inventory_adjust_lines"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_above="@id/layout_adjust_form_control"
+        android:layout_below="@id/button_inventory_adjust_zero_all" />
+
+    <LinearLayout
+        android:id="@+id/layout_adjust_form_control"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:orientation="horizontal"
+        android:weightSum="2">
+
+        <Button
+            android:id="@+id/button_stock_inventory_adjust_validate"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="@string/validate"/>
+
+        <Button
+            android:id="@+id/button_stock_inventory_adjust_cancel"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="@android:string/cancel"/>
+
+    </LinearLayout>
+
+</RelativeLayout>

@@ -23,11 +23,9 @@
             </intent-filter>
         </activity>
         <activity android:name=".InventoryMove" />
-        <activity android:name=".InventoryAdjust" />
         <activity
             android:name=".SettingsActivity"
             android:label="@string/title_activity_settings" />
-        <activity android:name=".FormInventoryAdjust" />
 
         <service android:name=".services.Synchronization" />
     </application>

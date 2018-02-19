@@ -125,6 +125,17 @@ public class SessionManager {
         return uid != 0;
     }
 
+    // TODO create a single wrapper (asynctask that will handle all the rpc calls, error handling will be delegated
+    private static void execute_kw(JSONRPCHttpClient client, String service, String method, JSONObject args)
+            throws JSONException, JSONRPCException {
+        JSONObject executeArgs = new JSONObject();
+        JSONArray functionArgs = new JSONArray();
+        executeArgs.put("service", "common");
+        executeArgs.put("method", "version");
+        executeArgs.put("args", functionArgs);
+        client.callJSONObject("execute_kw", executeArgs);
+    }
+
     private static int getUidPartnerId(int uid, JSONRPCHttpClient client, String database_name, String password)
             throws JSONException, JSONRPCException {
         JSONArray argsArray = new JSONArray();

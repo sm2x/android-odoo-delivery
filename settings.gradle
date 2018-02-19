@@ -1,1 +1,1 @@
-include ':app', ':libodoojsonrpc'
+include ':app'
