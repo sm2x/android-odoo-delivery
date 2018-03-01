@@ -154,9 +154,14 @@ public class StockPicking extends SQLiteOpenHelper {
 
     }
 
-    static class FieldMap<K, V> extends HashMap {
+    public static class FieldMap<K, V> extends HashMap {
         public JSONArray keySetToJsonArray() {
-            return new JSONArray();
+            JSONArray array = new JSONArray();
+            // todo
+            for (final String key : (String[])this.keySet().toArray()){
+                array.put(key);
+            }
+            return array;
         }
     }
 }

@@ -1,8 +1,11 @@
 package nl.triandria.utilities;
 
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.DialogFragment;
+import android.app.FragmentManager;
+import android.app.FragmentTransaction;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -27,6 +30,8 @@ import java.net.URL;
 import java.util.ArrayList;
 
 import nl.triandria.odoowarehousing.R;
+import nl.triandria.odoowarehousing.activities.fragments.Login;
+import nl.triandria.odoowarehousing.activities.fragments.Main;
 
 public class SessionManager {
 
@@ -38,14 +43,14 @@ public class SessionManager {
 
     public static class LogInTask extends AsyncTask<Object, Integer, String> {
 
-        WeakReference<Dialog> dialog;
+        WeakReference<Context> context;
         AlertDialog progressBarDialog;
 
-        public LogInTask(Dialog dialog) {
-            this.dialog = new WeakReference<>(dialog);
-            ProgressBar progressBar = new ProgressBar(this.dialog.get().getContext());
+        public LogInTask(Context context) {
+            this.context = new WeakReference<>(context);
+            ProgressBar progressBar = new ProgressBar(this.context.get());
             progressBar.setIndeterminate(true);
-            AlertDialog.Builder builder = new AlertDialog.Builder(this.dialog.get().getContext());
+            AlertDialog.Builder builder = new AlertDialog.Builder(this.context.get());
             builder.setView(progressBar);
             progressBarDialog = builder.create();
         }
@@ -60,12 +65,16 @@ public class SessionManager {
         protected void onPostExecute(String err_message) {
             progressBarDialog.dismiss();
             if (err_message != null) {
-                Toast.makeText(this.dialog.get().getContext(), err_message, Toast.LENGTH_LONG).show();
+                Toast.makeText(this.context.get(), err_message, Toast.LENGTH_LONG).show();
             } else {
-                this.dialog.get().dismiss();
+                this.progressBarDialog.dismiss();
+                FragmentManager manager = ((Activity)context.get()).getFragmentManager();
+                FragmentTransaction transaction = manager.beginTransaction();
+                transaction.replace(R.id.layout_main_activity, new Main());
+                transaction.commit();
             }
             Log.d(TAG, "Login successful, starting sync");
-            LocalBroadcastManager.getInstance(this.dialog.get().getContext()).sendBroadcast(
+            LocalBroadcastManager.getInstance(this.context.get()).sendBroadcast(
                     new Intent("synchronize"));
             super.onPostExecute(err_message);
         }
@@ -113,7 +122,7 @@ public class SessionManager {
                 return context.getString(R.string.error_malformed_url);
             } catch (JSONException e) {
                 e.printStackTrace();
-                return context.getString(R.string.error_login_failed_generic_error);
+                return context.getString(R.string.error_generic);
             }
             return null;
         }
@@ -206,10 +215,10 @@ public class SessionManager {
             if (!databases.isEmpty()) {
                 ArrayAdapter databaseAdapter = new ArrayAdapter<>(
                         weakReference.get().getActivity(), android.R.layout.simple_list_item_1, databases);
-                ((Spinner) weakReference.get().getDialog().findViewById(R.id.database)).setAdapter(databaseAdapter);
+                ((Spinner) weakReference.get().getView().findViewById(R.id.database)).setAdapter(databaseAdapter);
             } else {
                 Toast.makeText(weakReference.get().getActivity(),
-                        R.string.error_login_failed_generic_error, Toast.LENGTH_LONG).show();
+                        R.string.error_databases, Toast.LENGTH_LONG).show();
             }
         }
     }

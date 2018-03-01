@@ -15,8 +15,9 @@
     <string name="button_pickup">Pickup</string>
     <string name="port_80">80</string>
     <string name="error_login_failed_invalid_credentials">Login failed, invalid credentials.</string>
-    <string name="error_login_failed_generic_error">Login failed, generic error.</string>
+    <string name="error_databases">Error getting databases</string>
     <string name="error_malformed_url">Wrong URL</string>
+    <string name="error_generic">Generic error</string>
     <string name="internal">Internal</string>
     <string name="packs">Packs</string>
     <string name="inventory_adjust">Inventory Adjust</string>

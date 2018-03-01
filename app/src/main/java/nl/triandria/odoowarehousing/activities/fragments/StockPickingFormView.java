@@ -47,7 +47,7 @@ public class StockPickingFormView extends Fragment implements LoaderManager.Load
         }
         adapter = new SimpleCursorAdapter(
                 getActivity(),
-                R.layout.stock_move_line,
+                R.layout.row_stock_move_line,
                 null,
                 new String[]{"name", "product_qty"},
                 new int[]{R.id.textview_stock_move_product_name, R.id.textview_stock_move_product_qty},

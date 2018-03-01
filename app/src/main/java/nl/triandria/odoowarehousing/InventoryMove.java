@@ -21,16 +21,16 @@ public class InventoryMove extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_inventory_move);
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar_main_activity);
+        Toolbar toolbar = findViewById(R.id.toolbar_main_activity);
         setSupportActionBar(toolbar);
-        Button scanProduct = (Button) findViewById(R.id.button_scan_product_inventory_move);
-        BarcodeScan onClickListener = new BarcodeScan();
+        Button scanProduct = findViewById(R.id.button_scan_product_inventory_move);
+        BarcodeScan onClickListener = new BarcodeScan(this);
         scanProduct.setOnClickListener(onClickListener);
-        Button selectProduct = (Button) findViewById(R.id.button_select_product_inventory_move);
-        Button scanFromLocation = (Button) findViewById(R.id.button_scan_from_location_inventory_move);
+        Button selectProduct = findViewById(R.id.button_select_product_inventory_move);
+        Button scanFromLocation = findViewById(R.id.button_scan_from_location_inventory_move);
         scanFromLocation.setOnClickListener(onClickListener);
-        Button selectFromLocation = (Button) findViewById(R.id.button_select_from_location_inventory_move);
-        Button stockMoveOk = (Button) findViewById(R.id.button_inventory_move_ok);
+        Button selectFromLocation = findViewById(R.id.button_select_from_location_inventory_move);
+        Button stockMoveOk = findViewById(R.id.button_inventory_move_ok);
     }
 
 

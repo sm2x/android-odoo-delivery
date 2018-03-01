@@ -30,7 +30,8 @@ public class StockInventoryAdjustListView extends ListFragment implements Loader
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        ListView listView = (ListView) inflater.inflate(R.layout.fragment_stock_inventory_adjust_list_view, container);
+        ListView listView = inflater.inflate(
+                R.layout.fragment_stock_inventory_adjust_list_view, container, false).findViewById(R.id.listview_inventory_adjust);
         adapter = new SimpleCursorAdapter(
                 getActivity(),
                 R.layout.row_stock_inventory_line,

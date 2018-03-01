@@ -31,7 +31,7 @@ public class Login extends DialogFragment {
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, Bundle savedInstanceState) {
-        final LinearLayout dialogView = (LinearLayout) inflater.inflate(R.layout.dialog_login, container);
+        final LinearLayout dialogView = (LinearLayout) inflater.inflate(R.layout.dialog_login, container, false);
         Spinner protocols = dialogView.findViewById(R.id.protocol);
         ArrayAdapter protocolAdapter = ArrayAdapter.createFromResource(getActivity(), R.array.protocols, android.R.layout.simple_spinner_item);
         protocolAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
@@ -68,7 +68,7 @@ public class Login extends DialogFragment {
                     Toast.makeText(dialogView.getContext(), "Invalid data.", Toast.LENGTH_LONG).show();
                     return;
                 }
-                new SessionManager.LogInTask(getDialog()).execute(
+                new SessionManager.LogInTask(Login.this.getActivity()).execute(
                         values.get("url"),
                         values.get("username"),
                         values.get("password"),
@@ -85,6 +85,7 @@ public class Login extends DialogFragment {
         });
         return dialogView;
     }
+
 
     private boolean validateLoginFragmentValues(HashMap<String, String> values) {
         for (String key : values.keySet()) {

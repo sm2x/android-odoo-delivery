@@ -18,7 +18,7 @@ public class Main extends Fragment {
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, Bundle savedInstanceState) {
-        return setupButtons(inflater.inflate(R.layout.fragment_main, container));
+        return setupButtons(inflater.inflate(R.layout.fragment_main, container, false));
     }
 
     private View setupButtons(View layout) {
