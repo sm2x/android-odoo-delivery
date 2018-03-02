@@ -34,7 +34,7 @@ public class Main extends Fragment {
                 fragment.setArguments(args);
                 transaction.replace(R.id.layout_main_fragment, fragment);
                 transaction.addToBackStack(null);
-                transaction.commit();
+                transaction.commit(); // TODO commit not taking place immediately
             }
         });
         Button buttonPickup = layout.findViewById(R.id.button_pickup);

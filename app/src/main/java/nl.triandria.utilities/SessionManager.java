@@ -8,6 +8,7 @@ import android.app.FragmentManager;
 import android.app.FragmentTransaction;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.support.v4.content.LocalBroadcastManager;
@@ -39,6 +40,7 @@ public class SessionManager {
     // setup a broadcast receiver, if the receiver receives that the connection has been dropped for some reason
     // create a popup that is cannot be dismissed
     private static final String TAG = "SessionManager";
+    private static final String ACTION_SYNCHRONIZE = "synchronize";
     static final String SHARED_PREFERENCES_FILENAME = "odoo.sec";
 
     public static class LogInTask extends AsyncTask<Object, Integer, String> {
@@ -74,8 +76,9 @@ public class SessionManager {
                 transaction.commit();
             }
             Log.d(TAG, "Login successful, starting sync");
-            LocalBroadcastManager.getInstance(this.context.get()).sendBroadcast(
-                    new Intent("synchronize"));
+            LocalBroadcastManager manager = LocalBroadcastManager.getInstance(this.context.get());
+            manager.registerReceiver(new Synchronization(), new IntentFilter(ACTION_SYNCHRONIZE));
+            manager.sendBroadcast(new Intent(ACTION_SYNCHRONIZE));
             super.onPostExecute(err_message);
         }
 

@@ -69,7 +69,7 @@ public class Synchronization extends BroadcastReceiver {
                 JSONArray stockInventoryIds = new JSONArray();
                 for (final String model : MODELS_TO_SYNC) {
                     Log.d(TAG, "Syncing model: " + model);
-                    final JSONArray modelFields = StockPicking.TABLE_STRUCTURE.keySetToJsonArray();// TODO put a toJsonArray func in a subcls
+                    final JSONArray modelFields = StockPicking.TABLE_STRUCTURE.keySetToJsonArray();
                     JSONArray local_ids = new JSONArray();
                     Cursor cr = db.rawQuery("SELECT id FROM " + model, null);
                     // if we already have some

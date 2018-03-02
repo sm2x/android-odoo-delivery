@@ -3,6 +3,7 @@ package database;
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.util.Log;
 
 import org.json.JSONArray;
 
@@ -123,25 +124,28 @@ public class StockPicking extends SQLiteOpenHelper {
     public void onCreate(SQLiteDatabase db) {
         db.beginTransaction();
         try {
-            StringBuilder sql_create_table_builder = new StringBuilder();
             for (String table_name : (Set<String>) TABLE_STRUCTURE.keySet()) {
+                StringBuilder sql_create_table_builder = new StringBuilder();
                 sql_create_table_builder.append("CREATE TABLE ");
                 sql_create_table_builder.append(table_name);
                 sql_create_table_builder.append("(");
-                int counter = 0;
+                int counter = 1;
                 FieldMap<String, String> fieldMap = (FieldMap<String, String>) TABLE_STRUCTURE.get(table_name);
                 int field_count = fieldMap.keySet().size();
                 for (String field_name : ((Set<String>) fieldMap.keySet())) {
                     sql_create_table_builder.append(field_name);
+                    sql_create_table_builder.append(' ');
                     sql_create_table_builder.append(fieldMap.get(field_name));
+                    Log.d(TAG, new Integer(field_count).toString());
                     if (field_count != counter) {
                         sql_create_table_builder.append(',');
                     }
                     counter++;
                 }
+                sql_create_table_builder.append(")");
                 sql_create_table_builder.append(';');
+                db.execSQL(sql_create_table_builder.toString());
             }
-            db.execSQL(sql_create_table_builder.toString());
             db.setTransactionSuccessful();
         } finally {
             db.endTransaction();
@@ -158,7 +162,8 @@ public class StockPicking extends SQLiteOpenHelper {
         public JSONArray keySetToJsonArray() {
             JSONArray array = new JSONArray();
             // todo
-            for (final String key : (String[])this.keySet().toArray()){
+            Log.d(TAG, this.keySet().toArray().toString());
+            for (final Object key : this.keySet().toArray()) {
                 array.put(key);
             }
             return array;
