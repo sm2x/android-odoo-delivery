@@ -159,11 +159,9 @@ public class StockPicking extends SQLiteOpenHelper {
     }
 
     public static class FieldMap<K, V> extends HashMap {
-        public JSONArray keySetToJsonArray() {
+        public JSONArray keySetToJsonArray(String model) {
             JSONArray array = new JSONArray();
-            // todo
-            Log.d(TAG, this.keySet().toArray().toString());
-            for (final Object key : this.keySet().toArray()) {
+            for (final Object key : ((FieldMap) this.get(model)).keySet().toArray()) {
                 array.put(key);
             }
             return array;

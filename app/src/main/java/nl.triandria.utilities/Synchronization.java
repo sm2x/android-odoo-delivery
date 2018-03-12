@@ -69,7 +69,7 @@ public class Synchronization extends BroadcastReceiver {
                 JSONArray stockInventoryIds = new JSONArray();
                 for (final String model : MODELS_TO_SYNC) {
                     Log.d(TAG, "Syncing model: " + model);
-                    final JSONArray modelFields = StockPicking.TABLE_STRUCTURE.keySetToJsonArray();
+                    final JSONArray modelFields = StockPicking.TABLE_STRUCTURE.keySetToJsonArray(model);
                     JSONArray local_ids = new JSONArray();
                     Cursor cr = db.rawQuery("SELECT id FROM " + model, null);
                     // if we already have some
@@ -81,7 +81,6 @@ public class Synchronization extends BroadcastReceiver {
                     }
                     Log.d(TAG, "local_ids " + local_ids.toString());
                     JSONRPCHttpClient client = new JSONRPCHttpClient(url);
-                    // TODO see if there are any libraries available, if not, create one, REFACTOR THIS
                     JSONArray argsArray = new JSONArray();
                     JSONObject params = new JSONObject();
                     params.put("service", "object");
@@ -151,8 +150,9 @@ public class Synchronization extends BroadcastReceiver {
                     if (last_sync_date == null) {
                         Log.d(TAG, "Initial sync");
                         JSONArray records = client.callJSONArray("execute_kw", params);
+                        Log.d(TAG, "Records fetched " + records.toString());
                         for (int i = 0; i < records.length(); i++) {
-                            JSONObject record = (JSONObject) records.get(i);
+                            JSONObject record = records.getJSONObject(i);
                             ContentValues values = getContentValues(record);
                             if (model.equals("stock_picking")) {
                                 partnersToFetch.put(values.getAsInteger("partner_id"));
@@ -219,7 +219,11 @@ public class Synchronization extends BroadcastReceiver {
             jobBuilder.setRequiredNetworkType(JobInfo.NETWORK_TYPE_ANY);
             JobInfo jobInfo = jobBuilder.build();
             JobScheduler jobScheduler = (JobScheduler) context.getSystemService(Context.JOB_SCHEDULER_SERVICE);
-            jobScheduler.schedule(jobInfo);
+            if (jobScheduler != null) {
+                jobScheduler.schedule(jobInfo);
+            } else {
+                Log.d(TAG, "System does did not provide the JOB_SCHEDULER_SERVICE");
+            }
         }
 
     }

@@ -1,6 +1,7 @@
 package nl.triandria.odoowarehousing.activities.fragments;
 
 
+import android.app.Fragment;
 import android.app.FragmentTransaction;
 import android.app.ListFragment;
 import android.app.LoaderManager;
@@ -16,13 +17,14 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
+import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.SimpleCursorAdapter;
 
 import database.StockPicking;
 import nl.triandria.odoowarehousing.R;
 
-public class StockInventoryAdjustListView extends ListFragment implements LoaderManager.LoaderCallbacks {
+public class StockInventoryAdjustListView extends Fragment implements LoaderManager.LoaderCallbacks {
 
     private static final String TAG = StockInventoryAdjustListView.class.getName();
     SimpleCursorAdapter adapter;
@@ -30,8 +32,9 @@ public class StockInventoryAdjustListView extends ListFragment implements Loader
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        ListView listView = inflater.inflate(
-                R.layout.fragment_stock_inventory_adjust_list_view, container, false).findViewById(R.id.listview_inventory_adjust);
+        View parent = inflater.inflate(
+                R.layout.fragment_stock_inventory_adjust_list_view, container, false);
+        ListView listView = parent.findViewById(R.id.listview_inventory_adjust);
         adapter = new SimpleCursorAdapter(
                 getActivity(),
                 R.layout.row_stock_inventory_line,
@@ -42,7 +45,7 @@ public class StockInventoryAdjustListView extends ListFragment implements Loader
         listView.setOnItemClickListener(new ListViewOnItemClickListener());
         listView.setAdapter(adapter);
         getLoaderManager().initLoader(0, null, this);
-        return listView;
+        return parent;
     }
 
     @Override

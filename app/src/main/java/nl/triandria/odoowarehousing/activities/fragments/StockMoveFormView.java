@@ -36,7 +36,7 @@ public class StockMoveFormView extends Fragment {
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, Bundle savedInstanceState) {
-        LinearLayout formview = (LinearLayout) inflater.inflate(R.layout.activity_stock_move, container);
+        LinearLayout formview = (LinearLayout) inflater.inflate(R.layout.activity_stock_move, container, false);
         Button scanProduct = formview.findViewById(R.id.scan_product);
         BarcodeScan onClickListener = new BarcodeScan(getActivity());
         scanProduct.setOnClickListener(onClickListener);

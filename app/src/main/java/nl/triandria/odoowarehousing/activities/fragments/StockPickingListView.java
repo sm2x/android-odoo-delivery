@@ -47,7 +47,8 @@ public class StockPickingListView extends ListFragment implements LoaderManager.
                 new String[]{"id", "stock_picking_name", "res_partner_name", "res_partner_street"},
                 new int[]{R.id.textview_picking_name, R.id.textview_picking_partner, R.id.textview_picking_partner_address},
                 0);
-        ListView listView = container.findViewById(R.id.fragment_stock_picking_listview);
+        View wrapper = inflater.inflate(R.layout.fragment_stock_picking_listview, container, false);
+        ListView listView = wrapper.findViewById(R.id.fragment_stock_picking_listview);
         listView.setOnItemClickListener(new ListViewOnItemClickListener(args));
         adapter.setFilterQueryProvider(new FilterQueryProvider() {
             @Override
@@ -156,13 +157,14 @@ public class StockPickingListView extends ListFragment implements LoaderManager.
             Log.d(TAG, "onItemClick" + parent.getItemAtPosition(position).toString());
             SQLiteCursor cr = (SQLiteCursor) parent.getItemAtPosition(position);
             Log.d(TAG, Arrays.toString(cr.getColumnNames()));
+            String type = this.args.getString("type");
             int _id = cr.getInt(cr.getColumnIndex("id"));
             args.putInt("id", _id);
             args.putString("stock_picking_name", cr.getString(cr.getColumnIndex("stock_picking_name")));
             args.putString("res_partner_name", cr.getString(cr.getColumnIndex("res_partner_name")));
             args.putString("res_partner_street", cr.getString(cr.getColumnIndex("res_partner_street")));
-            args.putString("source", this.args.getString("type"));
-            if (this.args.getString("type").equals("internal")) {
+            args.putString("source", type);
+            if (type != null && type.equals("internal")) {
                 args.putString("location_id_name", cr.getString(cr.getColumnIndex("location_id_name")));
                 args.putString("location_dest_id_name", cr.getString(cr.getColumnIndex("location_dest_id_name")));
             }
