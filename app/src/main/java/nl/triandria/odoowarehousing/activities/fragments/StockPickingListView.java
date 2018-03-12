@@ -1,5 +1,6 @@
 package nl.triandria.odoowarehousing.activities.fragments;
 
+import android.app.Fragment;
 import android.app.FragmentTransaction;
 import android.app.ListFragment;
 import android.app.LoaderManager;
@@ -27,7 +28,7 @@ import database.StockPicking;
 import nl.triandria.odoowarehousing.R;
 
 
-public class StockPickingListView extends ListFragment implements LoaderManager.LoaderCallbacks, SearchView.OnQueryTextListener {
+public class StockPickingListView extends Fragment implements LoaderManager.LoaderCallbacks, SearchView.OnQueryTextListener {
 
     SimpleCursorAdapter adapter;
     private static final String TAG = StockPickingListView.class.getName();

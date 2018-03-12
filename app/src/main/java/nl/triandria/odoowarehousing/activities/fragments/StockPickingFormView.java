@@ -29,7 +29,7 @@ public class StockPickingFormView extends Fragment implements LoaderManager.Load
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, Bundle savedInstanceState) {
-        LinearLayout formview = (LinearLayout) inflater.inflate(R.layout.fragment_stock_picking_form_view, container);
+        LinearLayout formview = (LinearLayout) inflater.inflate(R.layout.fragment_stock_picking_form_view, container, false);
         Bundle args = getArguments();
         int id = args.getInt("id", 0);
         final String source = args.getString("source");
@@ -41,7 +41,7 @@ public class StockPickingFormView extends Fragment implements LoaderManager.Load
         stock_picking_name.setText(args.getString("stock_picking_name"));
         partner_id_name.setText(args.getString("res_partner_name"));
         partner_id_street.setText(args.getString("res_partner_street"));
-        if (source.equals("internal")) {
+        if (source != null && source.equals("internal")) {
             partner_id_name.setText(args.getString("location_id_name"));
             partner_id_street.setText(args.getString("location_dest_id_name"));
         }
