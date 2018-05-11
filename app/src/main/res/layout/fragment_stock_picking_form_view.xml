@@ -24,7 +24,6 @@
         android:id="@+id/listview_stock_picking_lines"
         android:layout_width="match_parent"
         android:layout_height="match_parent">
-
     </ListView>
 
 </LinearLayout>

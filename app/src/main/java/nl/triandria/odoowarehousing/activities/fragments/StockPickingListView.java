@@ -2,7 +2,6 @@ package nl.triandria.odoowarehousing.activities.fragments;
 
 import android.app.Fragment;
 import android.app.FragmentTransaction;
-import android.app.ListFragment;
 import android.app.LoaderManager;
 import android.content.Context;
 import android.content.CursorLoader;
@@ -172,7 +171,7 @@ public class StockPickingListView extends Fragment implements LoaderManager.Load
             FragmentTransaction transaction = getFragmentManager().beginTransaction();
             StockPickingFormView fragment = new StockPickingFormView();
             fragment.setArguments(args);
-            transaction.replace(parent.getId(), fragment);
+            transaction.replace(R.id.layout_main_activity, fragment);
             transaction.addToBackStack(null);
             transaction.commit();
         }

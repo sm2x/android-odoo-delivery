@@ -32,7 +32,7 @@ import static nl.triandria.odoowarehousing.services.Synchronization.JOB_ID;
 public class Synchronization extends BroadcastReceiver {
 
     private static final String TAG = "Synchronization";
-    private static final int MAX_RECORDS_PER_REQUEST = 100;
+    private static final int MAX_RECORDS_PER_REQUEST = 10000;
     private static final String[] MODELS_TO_SYNC = {
             "res_company",
             "res_users",
@@ -144,7 +144,7 @@ public class Synchronization extends BroadcastReceiver {
                             .put("search_read")
                             .put(outerDomain2)
                             .put(fields);
-                    fields.put("limit", MAX_RECORDS_PER_REQUEST);
+                    fields.put("limit", MAX_RECORDS_PER_REQUEST); //TODO if there are more records, fetch them
                     params.put("args", argsArray);
                     Log.d(TAG, params.toString());
                     if (last_sync_date == null) {

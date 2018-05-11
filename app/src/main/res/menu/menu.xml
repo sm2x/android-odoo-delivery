@@ -11,7 +11,7 @@
         android:id="@+id/toolbar_activity_delivery_search"
         android:icon="@android:drawable/ic_menu_search"
         android:title="@string/search"
-        app:actionViewClass="android.support.v7.widget.SearchView"
+        app:actionViewClass="android.widget.SearchView"
         app:showAsAction="ifRoom|collapseActionView" />
 
     <item

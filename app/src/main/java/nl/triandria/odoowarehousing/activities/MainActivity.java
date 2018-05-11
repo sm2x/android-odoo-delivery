@@ -1,10 +1,10 @@
 package nl.triandria.odoowarehousing.activities;
 
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.FragmentTransaction;
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -21,10 +21,9 @@ import nl.triandria.odoowarehousing.R;
 import nl.triandria.odoowarehousing.SettingsActivity;
 import nl.triandria.odoowarehousing.activities.fragments.Login;
 import nl.triandria.odoowarehousing.activities.fragments.Main;
-import nl.triandria.odoowarehousing.activities.fragments.StockPickingListView;
 import nl.triandria.utilities.SessionManager;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends Activity {
 
     private static final String TAG = MainActivity.class.getName();
     SimpleCursorAdapter adapter;
@@ -69,7 +68,7 @@ public class MainActivity extends AppCompatActivity {
         inflater.inflate(R.menu.menu, menu);
         MenuItem searchViewMenuItem = menu.findItem(R.id.toolbar_activity_delivery_search);
         SearchView searchView = (SearchView) searchViewMenuItem.getActionView();
-        searchView.setOnQueryTextListener(new StockPickingListView());
+        // TODO searchView.setOnQueryTextListener(new StockPickingListView());
         return super.onCreateOptionsMenu(menu);
     }
 

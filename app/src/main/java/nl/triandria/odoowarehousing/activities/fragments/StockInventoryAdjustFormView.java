@@ -39,7 +39,7 @@ public class StockInventoryAdjustFormView extends Fragment implements LoaderMana
                 R.layout.activity_picking_line,
                 null,
                 new String[]{"name", "location_id", "theoretical_qty", "product_qty"},
-                new int[]{R.id.textview_product_name, R.id.textview_product_location_id,
+                new int[]{R.id.textview_product_name, R.id.textview_product_location_id,// TODO fix
                         R.id.textview_product_theoretical_qty, R.id.textview_product_product_qty},
                 0);
         final ListView inventoryAdjustLines = formview.findViewById(R.id.listview_stock_inventory_adjust_lines);

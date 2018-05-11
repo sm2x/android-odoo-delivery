@@ -13,7 +13,6 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.SimpleCursorAdapter;
 import android.widget.TextView;
@@ -29,11 +28,11 @@ public class StockPickingFormView extends Fragment implements LoaderManager.Load
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, Bundle savedInstanceState) {
-        LinearLayout formview = (LinearLayout) inflater.inflate(R.layout.fragment_stock_picking_form_view, container, false);
+        View formview = inflater.inflate(R.layout.fragment_stock_picking_form_view, container, false);
         Bundle args = getArguments();
         int id = args.getInt("id", 0);
         final String source = args.getString("source");
-        Log.d(TAG, "Showing stock_picking record " + id);
+        Log.d(TAG, "Showing stock_picking record TEST" + id);
         TextView stock_picking_name = formview.findViewById(R.id.textview_stock_picking_name);
         TextView partner_id_name = formview.findViewById(R.id.textview_partner_id_name);
         TextView partner_id_street = formview.findViewById(R.id.textview_partner_id_street);

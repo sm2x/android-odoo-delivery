@@ -3,7 +3,6 @@ package nl.triandria.odoowarehousing.activities.fragments;
 
 import android.app.Fragment;
 import android.app.FragmentTransaction;
-import android.app.ListFragment;
 import android.app.LoaderManager;
 import android.content.Context;
 import android.content.CursorLoader;
@@ -17,7 +16,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
-import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.SimpleCursorAdapter;
 
@@ -39,8 +37,9 @@ public class StockInventoryAdjustListView extends Fragment implements LoaderMana
                 getActivity(),
                 R.layout.row_stock_inventory_line,
                 null,
-                new String[]{"name", "stock_location_name", "filter"},
-                new int[]{R.id.textview_picking_name, R.id.textview_picking_partner, R.id.textview_picking_partner_address},
+                new String[]{"name", "filter", "stock_location_name", "date"},
+                new int[]{R.id.textview_stock_inventory_name, R.id.textview_stock_inventory_filter,
+                        R.id.textview_stock_inventory_location_name, R.id.textview_stock_inventory_inventory_date},
                 0);
         listView.setOnItemClickListener(new ListViewOnItemClickListener());
         listView.setAdapter(adapter);
@@ -77,6 +76,7 @@ public class StockInventoryAdjustListView extends Fragment implements LoaderMana
                     "stock_inventory.rowid AS _id, " +
                     "stock_inventory.name AS name, " +
                     "stock_inventory.filter AS filter, " +
+                    "stock_inventory.date AS date, " +
                     "stock_location.name AS stock_location_name " +
                     "FROM stock_inventory " +
                     "INNER JOIN stock_location " +
