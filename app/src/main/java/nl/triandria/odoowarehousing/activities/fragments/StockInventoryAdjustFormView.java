@@ -36,10 +36,10 @@ public class StockInventoryAdjustFormView extends Fragment implements LoaderMana
         Button cancel = formview.findViewById(R.id.button_stock_inventory_adjust_cancel);
         final SimpleCursorAdapter adapter = new SimpleCursorAdapter(
                 getActivity(),
-                R.layout.activity_picking_line,
+                R.layout.row_stock_inventory_adjust,
                 null,
                 new String[]{"name", "location_id", "theoretical_qty", "product_qty"},
-                new int[]{R.id.textview_product_name, R.id.textview_product_location_id,// TODO fix
+                new int[]{R.id.textview_product_name, R.id.textview_product_location_id,
                         R.id.textview_product_theoretical_qty, R.id.textview_product_product_qty},
                 0);
         final ListView inventoryAdjustLines = formview.findViewById(R.id.listview_stock_inventory_adjust_lines);

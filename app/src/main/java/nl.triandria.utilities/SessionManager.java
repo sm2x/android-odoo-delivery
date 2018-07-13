@@ -2,7 +2,6 @@ package nl.triandria.utilities;
 
 import android.app.Activity;
 import android.app.AlertDialog;
-import android.app.Dialog;
 import android.app.DialogFragment;
 import android.app.FragmentManager;
 import android.app.FragmentTransaction;
@@ -31,7 +30,6 @@ import java.net.URL;
 import java.util.ArrayList;
 
 import nl.triandria.odoowarehousing.R;
-import nl.triandria.odoowarehousing.activities.fragments.Login;
 import nl.triandria.odoowarehousing.activities.fragments.Main;
 
 public class SessionManager {
@@ -218,7 +216,7 @@ public class SessionManager {
             if (!databases.isEmpty()) {
                 ArrayAdapter databaseAdapter = new ArrayAdapter<>(
                         weakReference.get().getActivity(), android.R.layout.simple_list_item_1, databases);
-                ((Spinner) weakReference.get().getView().findViewById(R.id.database)).setAdapter(databaseAdapter);
+                ((Spinner) weakReference.get().getView().findViewById(R.id.dialog_login_database)).setAdapter(databaseAdapter);
             } else {
                 Toast.makeText(weakReference.get().getActivity(),
                         R.string.error_databases, Toast.LENGTH_LONG).show();

@@ -5,19 +5,29 @@
     android:layout_height="match_parent"
     android:orientation="vertical">
 
+    <ImageView
+        android:id="@+id/dialog_login_splash_image"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:src="@drawable/ic_odoo_logo"
+        android:contentDescription="@string/odoo_logo"
+        android:layout_gravity="center" />
+
     <LinearLayout
+        android:id="@+id/dialog_login_server_info"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal">
+        android:orientation="horizontal"
+        android:alpha="0">
 
         <Spinner
-            android:id="@+id/protocol"
+            android:id="@+id/dialog_login_protocol"
             android:layout_width="0px"
             android:layout_height="wrap_content"
             android:layout_weight="2" />
 
         <EditText
-            android:id="@+id/url"
+            android:id="@+id/dialog_login_url"
             android:layout_width="0px"
             android:layout_height="wrap_content"
             android:hint="@string/hint_url"
@@ -25,7 +35,7 @@
             android:layout_weight="4"/>
 
         <EditText
-            android:id="@+id/port"
+            android:id="@+id/dialog_login_port"
             android:layout_width="0px"
             android:layout_height="wrap_content"
             android:hint="@string/hint_port"
@@ -35,32 +45,37 @@
     </LinearLayout>
 
     <EditText
-        android:id="@+id/username"
+        android:id="@+id/dialog_login_username"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="@string/hint_username" />
+        android:hint="@string/hint_username"
+        android:alpha="0"/>
 
     <EditText
-        android:id="@+id/password"
+        android:id="@+id/dialog_login_password"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:inputType="textPassword"
-        android:hint="@string/hint_password" />
+        android:hint="@string/hint_password"
+        android:alpha="0"/>
 
     <Spinner
-        android:id="@+id/database"
+        android:id="@+id/dialog_login_database"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content"
+        android:alpha="0">
     </Spinner>
 
     <LinearLayout
+        android:id="@+id/dialog_login_button_container"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        style="?android:attr/buttonBarButtonStyle">
+        style="?android:attr/buttonBarButtonStyle"
+        android:alpha="0">
 
         <Button
-            android:id="@+id/button_login_cancel"
+            android:id="@+id/dialog_login_button_login_cancel"
             android:layout_width="0px"
             android:layout_height="wrap_content"
             android:text="@android:string/cancel"
@@ -68,7 +83,7 @@
             style="?android:attr/buttonBarButtonStyle"/>
 
         <Button
-            android:id="@+id/button_login_ok"
+            android:id="@+id/dialog_login_button_login_ok"
             android:layout_width="0px"
             android:layout_height="wrap_content"
             android:text="@android:string/ok"

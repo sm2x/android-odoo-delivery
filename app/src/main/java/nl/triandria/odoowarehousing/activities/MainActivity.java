@@ -3,12 +3,19 @@ package nl.triandria.odoowarehousing.activities;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.FragmentTransaction;
+import android.app.LoaderManager;
+import android.content.AsyncTaskLoader;
+import android.content.Context;
 import android.content.Intent;
+import android.content.Loader;
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.widget.ListView;
 import android.widget.SearchView;
 import android.widget.SimpleCursorAdapter;
 import android.widget.Toast;
@@ -17,10 +24,11 @@ import android.widget.Toolbar;
 import com.google.zxing.integration.android.IntentIntegrator;
 import com.google.zxing.integration.android.IntentResult;
 
+import java.util.ArrayList;
+
+import database.StockPicking;
 import nl.triandria.odoowarehousing.R;
 import nl.triandria.odoowarehousing.SettingsActivity;
-import nl.triandria.odoowarehousing.activities.fragments.Login;
-import nl.triandria.odoowarehousing.activities.fragments.Main;
 import nl.triandria.utilities.SessionManager;
 
 public class MainActivity extends Activity {
@@ -36,13 +44,14 @@ public class MainActivity extends Activity {
         Toolbar toolbar = findViewById(R.id.toolbar_main_activity);
         setActionBar(toolbar);
         boolean isLoggedIn = SessionManager.isLoggedIn(this);
+        setListViewAppUsersData(this);
         FragmentTransaction transaction = getFragmentManager().beginTransaction();
         if (!isLoggedIn) {
             Log.d(TAG, "User is NOT logged in.");
-            transaction.replace(R.id.layout_main_activity, new Login());
+            //transaction.replace(R.id.layout_main_activity, new Login());
         } else {
             Log.d(TAG, "User is logged in");
-            transaction.replace(R.id.layout_main_activity, new Main());
+            //transaction.replace(R.id.layout_main_activity, new Main());
         }
         transaction.commit();
     }
@@ -85,4 +94,48 @@ public class MainActivity extends Activity {
         super.onActivityResult(requestCode, resultCode, data);
     }
 
+
+    private static void setListViewAppUsersData(final Activity MainActivity) {
+        ListView appUsers = MainActivity.findViewById(R.id.listview_app_users);
+        MainActivity.getLoaderManager().initLoader(0, null, new LoaderManager.LoaderCallbacks<ArrayList>() {
+
+            @Override
+            public Loader<ArrayList> onCreateLoader(int id, Bundle args) {
+                return new LoaderAppUsers(MainActivity);
+            }
+
+            @Override
+            public void onLoaderReset(Loader<ArrayList> loader) {
+            }
+
+            @Override
+            public void onLoadFinished(Loader<ArrayList> loader, ArrayList data) {
+            }
+        });
+    }
+
+    static class LoaderAppUsers extends AsyncTaskLoader<ArrayList> {
+
+        LoaderAppUsers(Context context) {
+            super(context);
+        }
+
+        @Override
+        public ArrayList<String> loadInBackground() {
+            SQLiteDatabase database = SQLiteDatabase.openDatabase(
+                    this.getContext().getDatabasePath(StockPicking.DATABASE_NAME).getAbsolutePath(),
+                    null,
+                    SQLiteDatabase.OPEN_READONLY);
+            Cursor cursor = database.query("app_users", null, null, null,
+                    null, null, null);
+            ArrayList<String> app_users_names = new ArrayList<>();
+            if (cursor.moveToFirst()) {
+                do {
+                    app_users_names.add(cursor.getString(cursor.getColumnIndex("name")));
+                } while (cursor.moveToNext());
+            }
+            cursor.close();
+            return app_users_names;// TODO find out how this is used in populating the listview
+        }
+    }
 }

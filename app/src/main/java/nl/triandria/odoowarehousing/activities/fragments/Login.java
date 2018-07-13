@@ -1,5 +1,7 @@
 package nl.triandria.odoowarehousing.activities.fragments;
 
+import android.animation.AnimatorSet;
+import android.animation.ValueAnimator;
 import android.app.DialogFragment;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -12,6 +14,7 @@ import android.widget.Adapter;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.Spinner;
 import android.widget.TextView;
@@ -32,11 +35,12 @@ public class Login extends DialogFragment {
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, Bundle savedInstanceState) {
         final LinearLayout dialogView = (LinearLayout) inflater.inflate(R.layout.dialog_login, container, false);
-        Spinner protocols = dialogView.findViewById(R.id.protocol);
+        animate(dialogView);
+        Spinner protocols = dialogView.findViewById(R.id.dialog_login_protocol);
         ArrayAdapter protocolAdapter = ArrayAdapter.createFromResource(getActivity(), R.array.protocols, android.R.layout.simple_spinner_item);
         protocolAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         protocols.setAdapter(protocolAdapter);
-        Spinner database = dialogView.findViewById(R.id.database);
+        Spinner database = dialogView.findViewById(R.id.dialog_login_database);
         database.setOnTouchListener(new View.OnTouchListener() {
 
             @Override
@@ -57,7 +61,7 @@ public class Login extends DialogFragment {
                 return true;
             }
         });
-        Button button_login_ok = dialogView.findViewById(R.id.button_login_ok);
+        Button button_login_ok = dialogView.findViewById(R.id.dialog_login_button_login_ok);
         button_login_ok.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -76,7 +80,7 @@ public class Login extends DialogFragment {
                         dialogView.getContext());
             }
         });
-        Button button_login_cancel = dialogView.findViewById(R.id.button_login_cancel);
+        Button button_login_cancel = dialogView.findViewById(R.id.dialog_login_button_login_cancel);
         button_login_cancel.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -86,6 +90,35 @@ public class Login extends DialogFragment {
         return dialogView;
     }
 
+    private void animate(final LinearLayout dialogView) {
+        AnimatorSet animatorSet = new AnimatorSet();
+        final ImageView splashImage = dialogView.findViewById(R.id.dialog_login_splash_image);
+        ValueAnimator imageAnimator = ValueAnimator.ofInt(200);
+        imageAnimator.setDuration(1000);
+        imageAnimator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+            @Override
+            public void onAnimationUpdate(ValueAnimator animation) {
+                int animatedValue = (int) animation.getAnimatedValue();
+                splashImage.setMaxHeight(animatedValue);
+            }
+        });
+        ValueAnimator alphaAnimator = ValueAnimator.ofFloat(0.0F, 1.0F);
+        alphaAnimator.setDuration(1000);
+        alphaAnimator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+            @Override
+            public void onAnimationUpdate(ValueAnimator animation) {
+                float animatedValue = (float) animation.getAnimatedValue();
+                dialogView.findViewById(R.id.dialog_login_server_info).setAlpha(animatedValue);
+                dialogView.findViewById(R.id.dialog_login_username).setAlpha(animatedValue);
+                dialogView.findViewById(R.id.dialog_login_password).setAlpha(animatedValue);
+                dialogView.findViewById(R.id.dialog_login_database).setAlpha(animatedValue);
+                dialogView.findViewById(R.id.dialog_login_button_container).setAlpha(animatedValue);
+            }
+        });
+        animatorSet.play(imageAnimator).before(alphaAnimator);
+        // TODO debug animation
+        animatorSet.start();
+    }
 
     private boolean validateLoginFragmentValues(HashMap<String, String> values) {
         for (String key : values.keySet()) {
@@ -100,12 +133,12 @@ public class Login extends DialogFragment {
     private HashMap<String, String> getLoginFragmentValues(View dialog) {
         HashMap<String, String> values = new HashMap<>();
         String database = "";
-        Object selectedDatabase = ((Spinner) dialog.findViewById(R.id.database)).getSelectedItem();
+        Object selectedDatabase = ((Spinner) dialog.findViewById(R.id.dialog_login_database)).getSelectedItem();
         if (selectedDatabase != null) {
             database = selectedDatabase.toString();
         }
-        values.put("username", ((EditText) dialog.findViewById(R.id.username)).getText().toString());
-        values.put("password", ((EditText) dialog.findViewById(R.id.password)).getText().toString());
+        values.put("username", ((EditText) dialog.findViewById(R.id.dialog_login_username)).getText().toString());
+        values.put("password", ((EditText) dialog.findViewById(R.id.dialog_login_password)).getText().toString());
         values.put("database", database);
         values.put("url", getLoginUrl(dialog));
         Log.d(TAG, "getLoginValues");
@@ -116,14 +149,14 @@ public class Login extends DialogFragment {
     private String getLoginUrl(View dialog) {
         StringBuilder urlBuilder = new StringBuilder();
         String protocol = "";
-        Object selectedProtocol = ((Spinner) dialog.findViewById(R.id.protocol)).getSelectedItem();
+        Object selectedProtocol = ((Spinner) dialog.findViewById(R.id.dialog_login_protocol)).getSelectedItem();
         if (selectedProtocol != null) {
             protocol = selectedProtocol.toString() + "://";
         }
         urlBuilder.append(protocol);
-        urlBuilder.append(((TextView) dialog.findViewById(R.id.url)).getText().toString());
+        urlBuilder.append(((TextView) dialog.findViewById(R.id.dialog_login_url)).getText().toString());
         urlBuilder.append(':');
-        urlBuilder.append(((TextView) dialog.findViewById(R.id.port)).getText().toString());
+        urlBuilder.append(((TextView) dialog.findViewById(R.id.dialog_login_port)).getText().toString());
         return urlBuilder.toString();
     }
 }

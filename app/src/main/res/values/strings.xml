@@ -43,5 +43,7 @@
     <string name="search">Search</string>
     <string name="search_barcode">Search using Barcode</string>
     <string name="validate">Validate</string>
+    <string name="odoo_logo">Odoo Logo</string>
+    <string name="app_icon">Icon</string>
 
 </resources>
