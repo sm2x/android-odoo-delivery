@@ -2,6 +2,7 @@ package nl.triandria.odoowarehousing.activities.fragments;
 
 import android.animation.AnimatorSet;
 import android.animation.ValueAnimator;
+import android.app.Dialog;
 import android.app.DialogFragment;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -35,7 +36,6 @@ public class Login extends DialogFragment {
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, Bundle savedInstanceState) {
         final LinearLayout dialogView = (LinearLayout) inflater.inflate(R.layout.dialog_login, container, false);
-        animate(dialogView);
         Spinner protocols = dialogView.findViewById(R.id.dialog_login_protocol);
         ArrayAdapter protocolAdapter = ArrayAdapter.createFromResource(getActivity(), R.array.protocols, android.R.layout.simple_spinner_item);
         protocolAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
@@ -87,37 +87,14 @@ public class Login extends DialogFragment {
                 getActivity().finish();
             }
         });
-        return dialogView;
+        return super.onCreateView(inflater, container, savedInstanceState); // todo
     }
 
-    private void animate(final LinearLayout dialogView) {
-        AnimatorSet animatorSet = new AnimatorSet();
-        final ImageView splashImage = dialogView.findViewById(R.id.dialog_login_splash_image);
-        ValueAnimator imageAnimator = ValueAnimator.ofInt(200);
-        imageAnimator.setDuration(1000);
-        imageAnimator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
-            @Override
-            public void onAnimationUpdate(ValueAnimator animation) {
-                int animatedValue = (int) animation.getAnimatedValue();
-                splashImage.setMaxHeight(animatedValue);
-            }
-        });
-        ValueAnimator alphaAnimator = ValueAnimator.ofFloat(0.0F, 1.0F);
-        alphaAnimator.setDuration(1000);
-        alphaAnimator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
-            @Override
-            public void onAnimationUpdate(ValueAnimator animation) {
-                float animatedValue = (float) animation.getAnimatedValue();
-                dialogView.findViewById(R.id.dialog_login_server_info).setAlpha(animatedValue);
-                dialogView.findViewById(R.id.dialog_login_username).setAlpha(animatedValue);
-                dialogView.findViewById(R.id.dialog_login_password).setAlpha(animatedValue);
-                dialogView.findViewById(R.id.dialog_login_database).setAlpha(animatedValue);
-                dialogView.findViewById(R.id.dialog_login_button_container).setAlpha(animatedValue);
-            }
-        });
-        animatorSet.play(imageAnimator).before(alphaAnimator);
-        // TODO debug animation
-        animatorSet.start();
+    @Override
+    public Dialog onCreateDialog(Bundle savedInstanceState) {
+        Dialog d = new Dialog(this.getActivity(), android.R.style.Theme_DeviceDefault_Dialog_MinWidth);// todo fix
+        d.setContentView(R.layout.dialog_login);
+        return d;
     }
 
     private boolean validateLoginFragmentValues(HashMap<String, String> values) {

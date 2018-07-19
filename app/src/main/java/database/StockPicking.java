@@ -40,6 +40,7 @@ public class StockPicking extends SQLiteOpenHelper {
         res_partner_fields.put("barcode", "TEXT");
         FieldMap<String, String> res_users_fields = new FieldMap<>();
         res_users_fields.put("id", "INTEGER");
+        res_users_fields.put("login", "TEXT");
         res_users_fields.put("company_id", "INTEGER");
         res_users_fields.put("partner_id", "INTEGER");
         FieldMap<String, String> stock_location_fields = new FieldMap<>();
@@ -127,6 +128,7 @@ public class StockPicking extends SQLiteOpenHelper {
 
     @Override
     public void onCreate(SQLiteDatabase db) {
+        Log.d(TAG, "onCreate()");
         db.beginTransaction();
         try {
             for (String table_name : (Set<String>) TABLE_STRUCTURE.keySet()) {

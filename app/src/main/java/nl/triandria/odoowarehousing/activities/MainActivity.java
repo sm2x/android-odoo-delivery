@@ -11,13 +11,21 @@ import android.content.Loader;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.util.Log;
+import android.util.SparseArray;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.SearchView;
 import android.widget.SimpleCursorAdapter;
+import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.Toolbar;
 
@@ -25,13 +33,18 @@ import com.google.zxing.integration.android.IntentIntegrator;
 import com.google.zxing.integration.android.IntentResult;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
 
 import database.StockPicking;
 import nl.triandria.odoowarehousing.R;
 import nl.triandria.odoowarehousing.SettingsActivity;
+import nl.triandria.odoowarehousing.activities.fragments.Login;
+import nl.triandria.odoowarehousing.activities.fragments.Main;
 import nl.triandria.utilities.SessionManager;
 
-public class MainActivity extends Activity {
+public class MainActivity extends Activity implements LoaderManager.LoaderCallbacks<MainActivity.ResUser[]> {
 
     private static final String TAG = MainActivity.class.getName();
     SimpleCursorAdapter adapter;
@@ -43,18 +56,9 @@ public class MainActivity extends Activity {
         setContentView(R.layout.activity_main);
         Toolbar toolbar = findViewById(R.id.toolbar_main_activity);
         setActionBar(toolbar);
-        boolean isLoggedIn = SessionManager.isLoggedIn(this);
         setListViewAppUsersData(this);
-        FragmentTransaction transaction = getFragmentManager().beginTransaction();
-        if (!isLoggedIn) {
-            Log.d(TAG, "User is NOT logged in.");
-            //transaction.replace(R.id.layout_main_activity, new Login());
-        } else {
-            Log.d(TAG, "User is logged in");
-            //transaction.replace(R.id.layout_main_activity, new Main());
-        }
-        transaction.commit();
     }
+
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
@@ -95,47 +99,94 @@ public class MainActivity extends Activity {
     }
 
 
-    private static void setListViewAppUsersData(final Activity MainActivity) {
+    private void setListViewAppUsersData(final Activity MainActivity) {
         ListView appUsers = MainActivity.findViewById(R.id.listview_app_users);
-        MainActivity.getLoaderManager().initLoader(0, null, new LoaderManager.LoaderCallbacks<ArrayList>() {
+        LoaderManager manager = MainActivity.getLoaderManager();
+        manager.initLoader(0, null, this);
+    }
 
-            @Override
-            public Loader<ArrayList> onCreateLoader(int id, Bundle args) {
-                return new LoaderAppUsers(MainActivity);
-            }
+    @Override
+    public Loader<ResUser[]> onCreateLoader(int id, Bundle args) {
+        Log.d(TAG, "oncreateloader");
+        return new LoaderAppUsers(this);
+    }
 
-            @Override
-            public void onLoaderReset(Loader<ArrayList> loader) {
-            }
 
+    @Override
+    public void onLoaderReset(Loader<ResUser[]> loader) {
+    }
+
+    @Override
+    public void onLoadFinished(Loader<ResUser[]> loader, ResUser[] data) {
+        Log.d(TAG, "onloadfinished" + data.toString());
+        ListView app_users = findViewById(R.id.listview_app_users);
+        ArrayAdapter<ResUser> adapter = new ArrayAdapter<>(this, android.R.layout.simple_dropdown_item_1line, data);
+        app_users.setAdapter(adapter);
+        app_users.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
-            public void onLoadFinished(Loader<ArrayList> loader, ArrayList data) {
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                // TODO show Login fragment as a popup, save connection info to res_users. Make sure you create different databases
+                // if the user selects a different database (maybe different url?)
+                FragmentTransaction transaction = getFragmentManager().beginTransaction();
+                Bundle args = new Bundle();
+                args.putInt("userId", ((ResUser)parent.getItemAtPosition(position)).id);
+                Login login = new Login();
+                login.setArguments(args);
+                transaction.add(login, Login.TAG);
+                transaction.commit();
             }
         });
     }
+    // array of objects, that object holds id and name, to string shows only name
 
-    static class LoaderAppUsers extends AsyncTaskLoader<ArrayList> {
+
+    static class LoaderAppUsers extends AsyncTaskLoader<ResUser[]> {
 
         LoaderAppUsers(Context context) {
             super(context);
         }
 
         @Override
-        public ArrayList<String> loadInBackground() {
+        protected void onStartLoading() {
+            //if (takeContentChanged()) {
+            forceLoad();
+            //}
+        }
+
+        @Override
+        public ResUser[] loadInBackground() {
+            Log.d(TAG, "loadinbackground");
             SQLiteDatabase database = SQLiteDatabase.openDatabase(
                     this.getContext().getDatabasePath(StockPicking.DATABASE_NAME).getAbsolutePath(),
                     null,
                     SQLiteDatabase.OPEN_READONLY);
-            Cursor cursor = database.query("app_users", null, null, null,
+            Cursor cursor = database.query("res_users", new String[]{"id", "login"}, null, null,
                     null, null, null);
-            ArrayList<String> app_users_names = new ArrayList<>();
-            if (cursor.moveToFirst()) {
-                do {
-                    app_users_names.add(cursor.getString(cursor.getColumnIndex("name")));
-                } while (cursor.moveToNext());
+            ResUser[] records = new ResUser[cursor.getCount() + 1 + 1];
+            records[0] = new ResUser(0, "New User...");
+            records[1] = new ResUser(2, "New User2...");
+            cursor.moveToFirst();
+            for (int x = 1; x < cursor.getCount(); x++) {
+                records[x] = new ResUser(cursor.getInt(0), cursor.getString(1));
             }
             cursor.close();
-            return app_users_names;// TODO find out how this is used in populating the listview
+            return records;
+        }
+    }
+
+    static class ResUser {
+
+        private int id;
+        private String login;
+
+        ResUser(int id, String login) {
+            this.id = id;
+            this.login = login;
+        }
+
+        @Override
+        public String toString() {
+            return this.login;
         }
     }
 }
