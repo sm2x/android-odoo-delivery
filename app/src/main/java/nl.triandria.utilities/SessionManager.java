@@ -43,14 +43,17 @@ public class SessionManager {
 
     public static class LogInTask extends AsyncTask<Object, Integer, String> {
 
-        WeakReference<Context> context;
+        WeakReference<Activity> activityWeakReference;
         AlertDialog progressBarDialog;
+        DialogFragment dialogFragment;
 
-        public LogInTask(Context context) {
-            this.context = new WeakReference<>(context);
-            ProgressBar progressBar = new ProgressBar(this.context.get());
+        public LogInTask(DialogFragment dialogFragment) {
+            this.activityWeakReference = new WeakReference<>(dialogFragment.getActivity());
+            this.dialogFragment = dialogFragment;
+            ProgressBar progressBar = new ProgressBar(this.activityWeakReference.get());
             progressBar.setIndeterminate(true);
-            AlertDialog.Builder builder = new AlertDialog.Builder(this.context.get());
+            progressBar.setBackgroundColor(android.R.color.white);
+            AlertDialog.Builder builder = new AlertDialog.Builder(this.activityWeakReference.get());
             builder.setView(progressBar);
             progressBarDialog = builder.create();
         }
@@ -64,17 +67,18 @@ public class SessionManager {
         @Override
         protected void onPostExecute(String err_message) {
             progressBarDialog.dismiss();
+            dialogFragment.dismiss();
             if (err_message != null) {
-                Toast.makeText(this.context.get(), err_message, Toast.LENGTH_LONG).show();
+                Toast.makeText(this.activityWeakReference.get(), err_message, Toast.LENGTH_LONG).show();
             } else {
                 this.progressBarDialog.dismiss();
-                FragmentManager manager = ((Activity)context.get()).getFragmentManager();
+                FragmentManager manager = ((Activity) activityWeakReference.get()).getFragmentManager();
                 FragmentTransaction transaction = manager.beginTransaction();
                 transaction.replace(R.id.layout_main_activity, new Main());
                 transaction.commit();
             }
             Log.d(TAG, "Login successful, starting sync");
-            LocalBroadcastManager manager = LocalBroadcastManager.getInstance(this.context.get());
+            LocalBroadcastManager manager = LocalBroadcastManager.getInstance(this.activityWeakReference.get());
             manager.registerReceiver(new Synchronization(), new IntentFilter(ACTION_SYNCHRONIZE));
             manager.sendBroadcast(new Intent(ACTION_SYNCHRONIZE));
             super.onPostExecute(err_message);
@@ -86,7 +90,6 @@ public class SessionManager {
             String username = (String) args[1];
             String password = (String) args[2];
             String database = (String) args[3];
-            Context context = (Context) args[4];
             try {
                 new URL(url);
                 JSONRPCHttpClient client = new JSONRPCHttpClient(url);
@@ -105,7 +108,7 @@ public class SessionManager {
 
                     int uid_partner_id = getUidPartnerId((int) uid, client, database, password);
                     Log.d(TAG, "UidPartnerId === >" + uid_partner_id);
-                    SharedPreferences preferences = context.getSharedPreferences(SHARED_PREFERENCES_FILENAME, Context.MODE_PRIVATE);
+                    SharedPreferences preferences = activityWeakReference.get().getSharedPreferences(SHARED_PREFERENCES_FILENAME, Context.MODE_PRIVATE);
                     preferences.edit()
                             .putInt("uid", (int) uid)
                             .putInt("uid_partner_id", uid_partner_id)
@@ -117,13 +120,13 @@ public class SessionManager {
                 }
             } catch (JSONRPCException e) {
                 e.printStackTrace();
-                return context.getString(R.string.error_login_failed_invalid_credentials);
+                return activityWeakReference.get().getString(R.string.error_login_failed_invalid_credentials);
             } catch (MalformedURLException e) {
                 e.printStackTrace();
-                return context.getString(R.string.error_malformed_url);
+                return activityWeakReference.get().getString(R.string.error_malformed_url);
             } catch (JSONException e) {
                 e.printStackTrace();
-                return context.getString(R.string.error_generic);
+                return activityWeakReference.get().getString(R.string.error_generic);
             }
             return null;
         }
@@ -183,6 +186,7 @@ public class SessionManager {
     public static class GetDatabasesTask extends AsyncTask<URI, Integer, ArrayList<String>> {
 
         WeakReference<DialogFragment> weakReference;
+        Exception exc;
 
         public GetDatabasesTask(DialogFragment dialog) {
             weakReference = new WeakReference<>(dialog);
@@ -206,6 +210,7 @@ public class SessionManager {
                 }
             } catch (JSONRPCException | JSONException | IllegalArgumentException e) {
                 e.printStackTrace();
+                exc = e;
             }
             return databases;
         }
@@ -213,13 +218,15 @@ public class SessionManager {
         @Override
         protected void onPostExecute(ArrayList<String> databases) {
             super.onPostExecute(databases);
-            if (!databases.isEmpty()) {
-                ArrayAdapter databaseAdapter = new ArrayAdapter<>(
-                        weakReference.get().getActivity(), android.R.layout.simple_list_item_1, databases);
-                ((Spinner) weakReference.get().getView().findViewById(R.id.dialog_login_database)).setAdapter(databaseAdapter);
+            if (exc == null) {
+                if (!databases.isEmpty()) {
+                    ArrayAdapter databaseAdapter = new ArrayAdapter<>(
+                            weakReference.get().getActivity(), android.R.layout.simple_list_item_1, databases);
+                    ((Spinner) weakReference.get().getView().findViewById(R.id.dialog_login_database)).setAdapter(databaseAdapter);
+                }
             } else {
                 Toast.makeText(weakReference.get().getActivity(),
-                        R.string.error_databases, Toast.LENGTH_LONG).show();
+                        exc.getMessage(), Toast.LENGTH_LONG).show();
             }
         }
     }

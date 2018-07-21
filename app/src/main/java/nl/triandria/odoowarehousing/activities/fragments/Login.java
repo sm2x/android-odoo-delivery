@@ -1,7 +1,5 @@
 package nl.triandria.odoowarehousing.activities.fragments;
 
-import android.animation.AnimatorSet;
-import android.animation.ValueAnimator;
 import android.app.Dialog;
 import android.app.DialogFragment;
 import android.os.Bundle;
@@ -15,7 +13,6 @@ import android.widget.Adapter;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.Spinner;
 import android.widget.TextView;
@@ -72,27 +69,26 @@ public class Login extends DialogFragment {
                     Toast.makeText(dialogView.getContext(), "Invalid data.", Toast.LENGTH_LONG).show();
                     return;
                 }
-                new SessionManager.LogInTask(Login.this.getActivity()).execute(
+                new SessionManager.LogInTask(Login.this).execute(
                         values.get("url"),
                         values.get("username"),
                         values.get("password"),
-                        values.get("database"),
-                        dialogView.getContext());
+                        values.get("database"));
             }
         });
         Button button_login_cancel = dialogView.findViewById(R.id.dialog_login_button_login_cancel);
         button_login_cancel.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                getActivity().finish();
+                dismiss();
             }
         });
-        return super.onCreateView(inflater, container, savedInstanceState); // todo
+        return dialogView;
     }
 
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
-        Dialog d = new Dialog(this.getActivity(), android.R.style.Theme_DeviceDefault_Dialog_MinWidth);// todo fix
+        Dialog d = new Dialog(this.getActivity(), android.R.style.Theme_DeviceDefault_Dialog_MinWidth);
         d.setContentView(R.layout.dialog_login);
         return d;
     }

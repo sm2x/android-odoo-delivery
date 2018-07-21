@@ -11,38 +11,28 @@ import android.content.Loader;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
 import android.util.Log;
-import android.util.SparseArray;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.SearchView;
 import android.widget.SimpleCursorAdapter;
-import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.Toolbar;
 
 import com.google.zxing.integration.android.IntentIntegrator;
 import com.google.zxing.integration.android.IntentResult;
 
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
 
 import database.StockPicking;
 import nl.triandria.odoowarehousing.R;
 import nl.triandria.odoowarehousing.SettingsActivity;
 import nl.triandria.odoowarehousing.activities.fragments.Login;
-import nl.triandria.odoowarehousing.activities.fragments.Main;
-import nl.triandria.utilities.SessionManager;
 
 public class MainActivity extends Activity implements LoaderManager.LoaderCallbacks<MainActivity.ResUser[]> {
 
@@ -56,9 +46,8 @@ public class MainActivity extends Activity implements LoaderManager.LoaderCallba
         setContentView(R.layout.activity_main);
         Toolbar toolbar = findViewById(R.id.toolbar_main_activity);
         setActionBar(toolbar);
-        setListViewAppUsersData(this);
+        initLoader();
     }
-
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
@@ -73,7 +62,6 @@ public class MainActivity extends Activity implements LoaderManager.LoaderCallba
                 return super.onOptionsItemSelected(item);
         }
     }
-
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -99,9 +87,8 @@ public class MainActivity extends Activity implements LoaderManager.LoaderCallba
     }
 
 
-    private void setListViewAppUsersData(final Activity MainActivity) {
-        ListView appUsers = MainActivity.findViewById(R.id.listview_app_users);
-        LoaderManager manager = MainActivity.getLoaderManager();
+    private void initLoader() {
+        LoaderManager manager = getLoaderManager();
         manager.initLoader(0, null, this);
     }
 
@@ -118,7 +105,7 @@ public class MainActivity extends Activity implements LoaderManager.LoaderCallba
 
     @Override
     public void onLoadFinished(Loader<ResUser[]> loader, ResUser[] data) {
-        Log.d(TAG, "onloadfinished" + data.toString());
+        Log.d(TAG, "onloadfinished" + Arrays.toString(data));
         ListView app_users = findViewById(R.id.listview_app_users);
         ArrayAdapter<ResUser> adapter = new ArrayAdapter<>(this, android.R.layout.simple_dropdown_item_1line, data);
         app_users.setAdapter(adapter);
@@ -129,7 +116,7 @@ public class MainActivity extends Activity implements LoaderManager.LoaderCallba
                 // if the user selects a different database (maybe different url?)
                 FragmentTransaction transaction = getFragmentManager().beginTransaction();
                 Bundle args = new Bundle();
-                args.putInt("userId", ((ResUser)parent.getItemAtPosition(position)).id);
+                args.putInt("userId", ((ResUser) parent.getItemAtPosition(position)).id);
                 Login login = new Login();
                 login.setArguments(args);
                 transaction.add(login, Login.TAG);
@@ -137,8 +124,6 @@ public class MainActivity extends Activity implements LoaderManager.LoaderCallba
             }
         });
     }
-    // array of objects, that object holds id and name, to string shows only name
-
 
     static class LoaderAppUsers extends AsyncTaskLoader<ResUser[]> {
 
@@ -148,9 +133,7 @@ public class MainActivity extends Activity implements LoaderManager.LoaderCallba
 
         @Override
         protected void onStartLoading() {
-            //if (takeContentChanged()) {
             forceLoad();
-            //}
         }
 
         @Override
@@ -162,9 +145,8 @@ public class MainActivity extends Activity implements LoaderManager.LoaderCallba
                     SQLiteDatabase.OPEN_READONLY);
             Cursor cursor = database.query("res_users", new String[]{"id", "login"}, null, null,
                     null, null, null);
-            ResUser[] records = new ResUser[cursor.getCount() + 1 + 1];
+            ResUser[] records = new ResUser[cursor.getCount() + 1];
             records[0] = new ResUser(0, "New User...");
-            records[1] = new ResUser(2, "New User2...");
             cursor.moveToFirst();
             for (int x = 1; x < cursor.getCount(); x++) {
                 records[x] = new ResUser(cursor.getInt(0), cursor.getString(1));
