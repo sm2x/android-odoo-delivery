@@ -45,5 +45,8 @@
     <string name="validate">Validate</string>
     <string name="odoo_logo">Odoo Logo</string>
     <string name="app_icon">Icon</string>
+    <string name="product_name">Product Name</string>
+    <string name="product_quantity">Product Quantity</string>
+    <string name="product_uom">Product UOM</string>
 
 </resources>
