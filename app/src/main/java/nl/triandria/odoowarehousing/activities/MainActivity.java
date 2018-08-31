@@ -8,8 +8,7 @@ import android.content.AsyncTaskLoader;
 import android.content.Context;
 import android.content.Intent;
 import android.content.Loader;
-import android.database.Cursor;
-import android.database.sqlite.SQLiteDatabase;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
@@ -27,14 +26,17 @@ import android.widget.Toolbar;
 import com.google.zxing.integration.android.IntentIntegrator;
 import com.google.zxing.integration.android.IntentResult;
 
-import java.util.Arrays;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Iterator;
+import java.util.LinkedHashSet;
 
-import database.StockPicking;
 import nl.triandria.odoowarehousing.R;
 import nl.triandria.odoowarehousing.SettingsActivity;
 import nl.triandria.odoowarehousing.activities.fragments.Login;
+import nl.triandria.utilities.SessionManager;
 
-public class MainActivity extends Activity implements LoaderManager.LoaderCallbacks<MainActivity.ResUser[]> {
+public class MainActivity extends Activity implements LoaderManager.LoaderCallbacks<ArrayList<MainActivity.ResUser>> {
 
     private static final String TAG = MainActivity.class.getName();
     SimpleCursorAdapter adapter;
@@ -93,19 +95,19 @@ public class MainActivity extends Activity implements LoaderManager.LoaderCallba
     }
 
     @Override
-    public Loader<ResUser[]> onCreateLoader(int id, Bundle args) {
+    public Loader<ArrayList<ResUser>> onCreateLoader(int id, Bundle args) {
         Log.d(TAG, "oncreateloader");
         return new LoaderAppUsers(this);
     }
 
 
     @Override
-    public void onLoaderReset(Loader<ResUser[]> loader) {
+    public void onLoaderReset(Loader<ArrayList<ResUser>> loader) {
     }
 
     @Override
-    public void onLoadFinished(Loader<ResUser[]> loader, ResUser[] data) {
-        Log.d(TAG, "onloadfinished" + Arrays.toString(data));
+    public void onLoadFinished(Loader<ArrayList<ResUser>> loader, ArrayList<ResUser> data) {
+        Log.d(TAG, "onloadfinished" + data.toString());
         ListView app_users = findViewById(R.id.listview_app_users);
         ArrayAdapter<ResUser> adapter = new ArrayAdapter<>(this, android.R.layout.simple_dropdown_item_1line, data);
         app_users.setAdapter(adapter);
@@ -125,7 +127,10 @@ public class MainActivity extends Activity implements LoaderManager.LoaderCallba
         });
     }
 
-    static class LoaderAppUsers extends AsyncTaskLoader<ResUser[]> {
+    /**
+     * This class loads the users of this application
+     */
+    static class LoaderAppUsers extends AsyncTaskLoader<ArrayList<ResUser>> {
 
         LoaderAppUsers(Context context) {
             super(context);
@@ -137,21 +142,20 @@ public class MainActivity extends Activity implements LoaderManager.LoaderCallba
         }
 
         @Override
-        public ResUser[] loadInBackground() {
+        public ArrayList<ResUser> loadInBackground() {
             Log.d(TAG, "loadinbackground");
-            SQLiteDatabase database = SQLiteDatabase.openDatabase(
-                    this.getContext().getDatabasePath(StockPicking.DATABASE_NAME).getAbsolutePath(),
-                    null,
-                    SQLiteDatabase.OPEN_READONLY);
-            Cursor cursor = database.query("res_users", new String[]{"id", "login"}, null, null,
-                    null, null, null);
-            ResUser[] records = new ResUser[cursor.getCount() + 1];
-            records[0] = new ResUser(0, "New User...");
-            cursor.moveToFirst();
-            for (int x = 1; x < cursor.getCount(); x++) {
-                records[x] = new ResUser(cursor.getInt(0), cursor.getString(1));
+            ArrayList<ResUser> records = new ArrayList<>();
+            records.add(new ResUser(0, "New User..."));
+            SharedPreferences preferences = getContext().getSharedPreferences(
+                    SessionManager.SHARED_PREFERENCES_FILENAME, Context.MODE_PRIVATE);
+            Collection<?> values = preferences.getAll().values();
+            for (Object user : values) {
+                LinkedHashSet<String> set = (LinkedHashSet<String>) user;
+                Iterator<String> iterator = set.iterator();
+                int id = Integer.valueOf(iterator.next());
+                String login = iterator.next();
+                records.add(new ResUser(id, login));
             }
-            cursor.close();
             return records;
         }
     }

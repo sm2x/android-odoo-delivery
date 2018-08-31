@@ -102,9 +102,6 @@ public class StockPicking extends SQLiteOpenHelper {
         stock_inventory_line_fields.put("theoretical_qty", "INTEGER");
         stock_inventory_line_fields.put("product_qty", "INTEGER");
         stock_inventory_line_fields.put("inventory_id", "INTEGER");
-        FieldMap<String, String> appUsersFields = new FieldMap<>();
-        appUsersFields.put("id", "INTEGER");
-        appUsersFields.put("name", "TEXT");
         TABLE_STRUCTURE.put("res_company", res_company_fields);
         TABLE_STRUCTURE.put("res_partner", res_partner_fields);
         TABLE_STRUCTURE.put("res_users", res_users_fields);
@@ -116,8 +113,6 @@ public class StockPicking extends SQLiteOpenHelper {
         TABLE_STRUCTURE.put("product_product", product_product_fields);
         TABLE_STRUCTURE.put("stock_inventory", stock_inventory_fields);
         TABLE_STRUCTURE.put("stock_inventory_line", stock_inventory_line_fields);
-        //app specific tables
-        TABLE_STRUCTURE.put("app_users", appUsersFields);
     }
 
     @Override

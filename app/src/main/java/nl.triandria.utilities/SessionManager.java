@@ -28,6 +28,9 @@ import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.LinkedHashSet;
+import java.util.SortedSet;
 
 import nl.triandria.odoowarehousing.R;
 import nl.triandria.odoowarehousing.activities.fragments.Main;
@@ -39,7 +42,7 @@ public class SessionManager {
     // create a popup that is cannot be dismissed
     private static final String TAG = "SessionManager";
     private static final String ACTION_SYNCHRONIZE = "synchronize";
-    static final String SHARED_PREFERENCES_FILENAME = "odoo.sec";
+    public static final String SHARED_PREFERENCES_FILENAME = "odoo.sec";
 
     public static class LogInTask extends AsyncTask<Object, Integer, String> {
 
@@ -72,7 +75,7 @@ public class SessionManager {
                 Toast.makeText(this.activityWeakReference.get(), err_message, Toast.LENGTH_LONG).show();
             } else {
                 this.progressBarDialog.dismiss();
-                FragmentManager manager = ((Activity) activityWeakReference.get()).getFragmentManager();
+                FragmentManager manager = activityWeakReference.get().getFragmentManager();
                 FragmentTransaction transaction = manager.beginTransaction();
                 transaction.replace(R.id.layout_main_activity, new Main());
                 transaction.commit();
@@ -84,6 +87,9 @@ public class SessionManager {
             super.onPostExecute(err_message);
         }
 
+        /**
+         * This function logs in the user, and saves their credentials locally.
+         * */
         @Override
         protected String doInBackground(Object... args) {
             String url = args[0] + "/jsonrpc";
@@ -108,14 +114,15 @@ public class SessionManager {
 
                     int uid_partner_id = getUidPartnerId((int) uid, client, database, password);
                     Log.d(TAG, "UidPartnerId === >" + uid_partner_id);
+                    LinkedHashSet<String> user = new LinkedHashSet<>();
+                    user.add(Integer.toString(uid_partner_id));
+                    user.add(username);
+                    user.add(password);
+                    user.add(database);
+                    user.add(url);
                     SharedPreferences preferences = activityWeakReference.get().getSharedPreferences(SHARED_PREFERENCES_FILENAME, Context.MODE_PRIVATE);
                     preferences.edit()
-                            .putInt("uid", (int) uid)
-                            .putInt("uid_partner_id", uid_partner_id)
-                            .putString("username", username)
-                            .putString("password", password)
-                            .putString("database", database)
-                            .putString("url", url)
+                            .putStringSet(Integer.toString((int) uid), user)
                             .apply();
                 }
             } catch (JSONRPCException e) {
@@ -130,12 +137,6 @@ public class SessionManager {
             }
             return null;
         }
-    }
-
-    public static boolean isLoggedIn(Context context) {
-        SharedPreferences preferences = context.getSharedPreferences(SHARED_PREFERENCES_FILENAME, Context.MODE_PRIVATE);
-        Integer uid = preferences.getInt("uid", 0);
-        return uid != 0;
     }
 
     // TODO create a single wrapper (asynctask that will handle all the rpc calls, error handling will be delegated

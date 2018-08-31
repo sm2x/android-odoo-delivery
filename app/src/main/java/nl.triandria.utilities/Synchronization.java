@@ -188,7 +188,6 @@ public class Synchronization extends BroadcastReceiver {
                                     + last_sync_date + " and it has been updated." + "rows affected" + count);
                         }
                     }
-                    // TODO make sure that this is in the same timezone as the server
                     sharedPreferences.edit().putString("last_sync_date", format_date(new Date())).apply();
                 }
                 db.setTransactionSuccessful();
